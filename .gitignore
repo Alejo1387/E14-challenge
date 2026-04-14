@@ -1,0 +1,13 @@
+# Ignore all pycache directories
+__pycache__/
+
+# Ignore DB
+e14_challenge.db
+
+# Ignore data files (raw and processed are generated/downloaded)
+data/raw/
+data/processed/
+
+# Ignore logs generated during runtime
+logs/
+
