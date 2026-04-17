@@ -22,13 +22,15 @@ Este script inserta datos REALES de Colombia:
 import sys
 from pathlib import Path
 from datetime import datetime
+import uuid
+import random
 
 # Agregar backend/ al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Importar
 from config import DATABASE_URL, ELECTION_ID
-from src.database.schema import create_engine_connection, Base, Department, Municipality, Zone, Station, VotingTable, Form, ProcessingStatus
+from src.database.schema import create_engine_connection, create_all_tables, Base, Department, Municipality, Zone, Station, VotingTable, Form, ProcessingStatus
 from sqlalchemy.orm import Session
 
 # ============================================================================
@@ -293,8 +295,18 @@ def insertar_pdfs_prueba(session: Session) -> int:
     mesas = session.query(VotingTable).limit(10).all()
     
     for i, mesa in enumerate(mesas):
-        # Crear un formulario ficticio
-        form_serial = f"TEST_{mesa.id:06d}_{i:03d}"
+        # Crear un formulario ficticio con serial único
+        # Usamos timestamp + uuid para garantizar que sea único
+        timestamp = int(datetime.utcnow().timestamp() * 1000)  # milliseconds
+        random_suffix = random.randint(1000, 9999)
+        form_serial = f"TEST_{timestamp}_{random_suffix}_{i:03d}"
+        
+        # Verificar que no existe ya
+        existe = session.query(Form).filter_by(form_serial=form_serial).first()
+        
+        if existe:
+            print(f"   ⏭️  Formulario {form_serial} ya existe")
+            continue
         
         form = Form(
             form_serial=form_serial,
@@ -342,6 +354,9 @@ def main():
         return False
     
     try:
+        # Crear todas las tablas si no existen
+        Base.metadata.create_all(engine)
+        
         # PASO 1: Insertar departamentos
         dept_insertados = insertar_departamentos(session)
         
