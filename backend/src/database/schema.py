@@ -15,9 +15,12 @@ from sqlalchemy import (
     Column,                  # Define columnas en tablas
     Integer, String, Text, DateTime, Float, Enum,  # Tipos de datos
     ForeignKey,              # Referencia a otra tabla
+    and_,                    # Para join conditions complejas
+    func,                    # Funciones SQL
+    ForeignKeyConstraint,    # Constraints complejos de foreign keys
 )
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import relationship, Session, foreign
 from datetime import datetime
 import enum
 from pathlib import Path
@@ -119,8 +122,19 @@ class Municipality(Base):
     
     # Relaciones
     department = relationship("Department", back_populates="municipalities")
-    zones = relationship("Zone", back_populates="municipality")
-    forms = relationship("Form", back_populates="municipality")
+    zones = relationship(
+        "Zone",
+        back_populates="municipality",
+        foreign_keys="[Zone.municipality_code, Zone.municipality_department]",
+        primaryjoin="and_(Zone.municipality_code==Municipality.code, Zone.municipality_department==Municipality.department_code)"
+    )
+    forms = relationship(
+        "Form",
+        back_populates="municipality",
+        foreign_keys="[Form.municipality_code, Form.department_code]",
+        primaryjoin="and_(Form.municipality_code==Municipality.code, Form.department_code==Municipality.department_code)",
+        overlaps="department,forms"
+    )
     
     def __repr__(self):
         return f"<Municipality {self.code} ({self.department_code}): {self.name}>"
@@ -163,7 +177,12 @@ class Zone(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relaciones
-    municipality = relationship("Municipality", back_populates="zones")
+    municipality = relationship(
+        "Municipality",
+        back_populates="zones",
+        foreign_keys="[Zone.municipality_code, Zone.municipality_department]",
+        primaryjoin="and_(Zone.municipality_code==Municipality.code, Zone.municipality_department==Municipality.department_code)"
+    )
     stations = relationship("Station", back_populates="zone")
     
     def __repr__(self):
@@ -276,6 +295,13 @@ class Form(Base):
     municipality_code = Column(String(3), nullable=False, index=True)
     voting_table_id = Column(Integer, ForeignKey("voting_tables.id"), nullable=False)
     
+    __table_args__ = (
+        # ForeignKey constraint para municipality (composite key)
+        # Form.municipality_code y Form.department_code -> Municipality.(code, department_code)
+        ForeignKeyConstraint(['municipality_code', 'department_code'], 
+                             ['municipalities.code', 'municipalities.department_code']),
+    )
+    
     # Almacenamiento (IMPORTANTÍSIMO para ti)
     local_path = Column(String(500), nullable=False)  # Dónde está el PDF en tu disco
     file_hash = Column(String(64))  # SHA-256 del archivo
@@ -292,7 +318,13 @@ class Form(Base):
     
     # Relaciones
     department = relationship("Department", back_populates="forms")
-    municipality = relationship("Municipality", back_populates="forms")
+    municipality = relationship(
+        "Municipality",
+        back_populates="forms",
+        foreign_keys="[Form.municipality_code, Form.department_code]",
+        primaryjoin="and_(Form.municipality_code==Municipality.code, Form.department_code==Municipality.department_code)",
+        overlaps="department,forms"
+    )
     voting_table = relationship("VotingTable", back_populates="forms")
     
     def __repr__(self):
