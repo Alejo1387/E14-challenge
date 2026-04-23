@@ -11,3 +11,6 @@ data/processed/
 # Ignore logs generated during runtime
 logs/
 
+# Artefactos locales del discovery (HTML/JS descargados al investigar)
+Data Sources and Scraping Strategy/artifacts/
+

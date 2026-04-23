@@ -1,7 +1,10 @@
-# Librerías necesarias para descargar PDFs de la Registraduría
-
-requests==2.31.0                    # Para hacer peticiones HTTP (POST, GET, etc)
-urllib3==2.1.0                      # Para manejar conexiones HTTPS y desactivar advertencias
-python-dotenv==1.0.0                # Para leer variables de entorno (tokens secretos)
-beautifulsoup4==4.12.2              # Para PARSEAR (leer) HTML y extraer datos de él
-lxml==4.9.3                         # Parser rápido para BeautifulSoup
+# Dependencias del proyecto E14 (scraping + descubrimiento + tu backend futuro)
+httpx
+click
+sqlalchemy
+psycopg2-binary
+tenacity
+requests
+urllib3
+beautifulsoup4
+lxml
