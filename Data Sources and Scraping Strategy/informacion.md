@@ -254,3 +254,158 @@ Para verificar que entendiste:
 
 - **Yo** (este proyecto) → Scraping, descargas, reverse API
 - **Mi compañero** → API, base de datos, storage, IA (OCR)
+
+
+mira yo estaba haciendo un proyecto con un amigo pero nos dividimos el trabajo y cada uno esta trabajando consus inteligenias artificiales y sus partes del proyecto y acontinuacion te voy a pasar el proyecto:
+🧠 RESUMEN COMPLETO DEL PDF (E14 Challenge)
+📌 ¿Qué es el proyecto?
+
+Plataforma tecnológica para auditar elecciones en Colombia usando formularios E-14.
+
+👉 Hace esto:
+
+Descarga formularios oficiales (PDF)
+Usa IA (OCR) para leer números escritos a mano
+Detecta errores o irregularidades
+Muestra todo en un dashboard interactivo
+🎯 Objetivo principal
+Aumentar la transparencia electoral
+Permitir ver resultados desde nivel:
+Nacional → departamento → municipio → mesa
+Detectar:
+Errores matemáticos
+Datos sospechosos
+Inconsistencias
+📊 Datos que usa
+Formularios E-14 de la Registraduría
+Ejemplo base: elecciones 2022 (~102,000 mesas)
+
+👉 Para desarrollo:
+
+Solo ciudades grandes (~20,000 formularios)
+🌐 Cómo funciona (flujo general)
+
+Scraping (descarga)
+Se descargan PDFs desde páginas oficiales
+Se guardan organizados por:
+
+departamento / municipio / zona / mesa
+2. Procesamiento con IA (OCR)
+Convierte PDF → imagen
+Usa IA (Gemini 3 Flash) para extraer:
+Votos por candidato
+Votos en blanco, nulos, etc.
+Totales de mesa
+
+👉 También detecta problemas como:
+
+Números tachados
+Escritura ilegible
+Valores ambiguos
+3. Validación automática
+
+Se revisa que:
+
+Sumas sean correctas
+No haya valores negativos
+Todo tenga sentido lógico
+4. Clasificación de calidad
+
+Cada formulario se clasifica:
+
+🟢 CLEAN → todo correcto
+🟡 HAS_ISSUES → tiene problemas
+🔴 UNREADABLE → ilegible
+5. Detección de anomalías
+🔹 En una sola mesa:
+Sumas incorrectas
+Diferencias entre votantes y votos
+Muchos números corregidos
+Valores raros (ej: 0 votos en mesas grandes)
+🔹 Entre mesas:
+Comportamientos muy diferentes
+Participación anormal
+Resultados sospechosamente iguales
+🔹 A nivel región:
+Ley de Benford
+Desviaciones estadísticas
+Comparación con resultados oficiales
+🏗️ Arquitectura del sistema
+🔹 Backend
+FastAPI (solo lectura)
+🔹 Frontend
+React
+🔹 Base de datos
+PostgreSQL
+🔹 Almacenamiento
+AWS S3 (archivos)
+🔹 IA
+Gemini 3 Flash (OCR)
+⚙️ Pipeline (procesos separados)
+
+Scripts en Python:
+
+scrape.py → descarga PDFs
+extract.py → usa IA
+analyze.py → detecta anomalías
+sync_s3.py → sube archivos
+
+👉 Todos son:
+
+Reanudables
+Independientes
+📊 Dashboard (interfaz)
+
+Muestra:
+
+📍 Mapa de Colombia con anomalías
+📊 Resultados por candidato
+📄 Vista del formulario + datos extraídos
+⚠️ Lista de errores detectados
+🔍 Funciones clave
+Filtrar por:
+Ubicación
+Candidato
+Tipo de error
+Comparar:
+Municipios
+Mesas
+Ver detalles por formulario
+💰 Monetización
+Google AdSense
+Donaciones (Stripe, PSE)
+🗂️ Base de datos (estructura básica)
+
+Tablas principales:
+
+elections
+forms
+extraction_results
+candidate_votes
+anomalies
+🗳️ Qué contiene un formulario E-14
+Información de ubicación
+Número de mesa
+Votos por candidato
+Votos:
+en blanco
+nulos
+no marcados
+Totales
+Firmas
+🚀 Fases del proyecto
+Base del sistema
+Scraping
+IA (OCR)
+Análisis
+API
+Dashboard
+Funciones avanzadas
+Producción
+💡 Idea clave (lo MÁS importante)
+
+👉 Es un sistema que:
+
+automatiza la revisión de elecciones
+usando IA + análisis estadístico
+para detectar fraude o errores
