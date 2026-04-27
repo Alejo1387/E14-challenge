@@ -409,3 +409,239 @@ Producción
 automatiza la revisión de elecciones
 usando IA + análisis estadístico
 para detectar fraude o errores
+
+
+
+analiza este proyecto y sigue las instrucciones que digo en el promt, elimina lo que tengas que eliminar y haz lo que tengas que hacer para descargar esos pdfs y mi parte del trabajo es lo que esta en la carpeta data sources and scraping strategy
+
+
+Actúa como un desarrollador de software senior con 30 años de experiencia
+en backend Python, scraping y APIs REST, y también como un profesor experto
+en enseñar programación desde cero a personas sin experiencia previa.
+Tu misión: enseñarme paso a paso a construir MI PARTE de un proyecto real
+de auditoría electoral colombiana llamado "E14 Challenge".
+════════════════════════════════════════════════════════════
+📋 QUÉ ES EL PROYECTO (contexto completo)
+════════════════════════════════════════════════════════════
+E14 Challenge es una plataforma de tecnología cívica que busca promover
+la transparencia electoral en Colombia. El sistema:
+
+Descarga los formularios E-14 (Actas de Escrutinio de Mesa) publicados
+por la Registraduría Nacional del Estado Civil en formato PDF.
+Usa IA (Gemini 3 Flash vía Google Vertex AI) para leer los formularios
+escritos a mano y extraer los votos por candidato.
+Detecta anomalías, errores aritméticos e irregularidades estadísticas.
+Muestra todo en un dashboard web interactivo para ciudadanos, periodistas
+y organizaciones como la MOE (Misión de Observación Electoral).
+
+DATOS CLAVE DEL PROYECTO:
+
+Dataset de desarrollo: elecciones presidenciales 2022 (primera vuelta,
+29 de mayo de 2022).
+Aproximadamente 102,152 mesas en 12,513 puestos de votación a nivel nacional.
+Fase local (desarrollo): solo 6 ciudades principales → ~21,800 formularios.
+· Bogotá D.C.   (código DANE: 11-001) → ~12,000 mesas
+· Medellín      (código DANE: 05-001) → ~3,500 mesas
+· Cali          (código DANE: 76-001) → ~2,800 mesas
+· Barranquilla  (código DANE: 08-001) → ~1,500 mesas
+· Cartagena     (código DANE: 13-001) → ~1,200 mesas
+· Bucaramanga   (código DANE: 68-001) → ~800 mesas
+
+PORTAL DE LA REGISTRADURÍA:
+
+URL base del dataset de desarrollo:
+e14_pres1v_2022.registraduria.gov.co
+El portal usa una interfaz renderizada en JavaScript con selectores
+dinámicos (departamento → municipio → zona → puesto → mesa).
+La estrategia preferida: hacer reverse engineering de las llamadas
+XHR/fetch que hace el navegador para encontrar los endpoints JSON
+ocultos que alimentan esos selectores.
+Alternativa si no se encuentran los endpoints: usar Playwright o
+Puppeteer para navegar el portal de forma automática.
+
+ESTRUCTURA DE LOS ARCHIVOS PDF:
+Los PDFs siguen este patrón de nombre:
+5036317_E14_PRE_X_01_001_001_XX_01_031_X_XXX.pdf
+Decodificado campo por campo:
+5036317  → Número único del formulario (coincide con número KIT)
+E14      → Tipo de formulario (siempre E14)
+PRE      → Tipo de elección (PRE=Presidencial, SEN=Senado, CAM=Cámara)
+X        → Indicador de ronda
+01       → Código DANE del departamento (01 = Antioquia)
+001      → Código DANE del municipio (001 = Medellín)
+001      → Zona de votación
+XX       → Reservado
+01       → Número del puesto de votación
+031      → Número de la mesa de votación
+X_XXX    → Sufijo de versión
+ESTRUCTURA DE CARPETAS PARA GUARDAR LOS PDFs:
+./data/raw/{dept_code}/{muni_code}/{zone}/{station}/{table}.pdf
+Ejemplo:
+./data/raw/01/001/001/01/031.pdf
+Esta misma estructura se replica en AWS S3:
+s3://e14-challenge/{election_id}/{dept}/{muni}/{zone}/{station}/{table}.pdf
+EL FORMULARIO E-14 (qué contiene):
+Cada formulario tiene:
+
+Encabezado: departamento, municipio, zona, puesto, mesa, código de barras.
+Nivelación de mesa:
+· Total Sufragantes (del formato E-11)
+· Total Votos en la Urna
+· Total Votos Incinerados
+Votos por candidato (elecciones 2022, 8 candidatos):
+
+Rodolfo Hernández   (LIGA)
+John Milton Rodríguez (Colombia Justa Libres)
+Federico Gutiérrez  (Equipo por Colombia / FICO)
+Sergio Fajardo      (Centro Esperanza)
+Enrique Gómez       (Fuerza Nacional)
+Gustavo Petro       (Pacto Histórico)
+Luis Pérez          (Piensa en Grande)
+Ingrid Betancourt   (Oxígeno)
+Cada candidato tiene 3 celdas: centenas, decenas, unidades.
+Un asterisco (*) en centenas significa número de 2 dígitos.
+
+
+Votos en blanco, nulos, no marcados.
+Total votos de la mesa.
+Pie: constancias, si hubo reconteo, firmas de 6 jurados.
+
+════════════════════════════════════════════════════════════
+👥 DIVISIÓN DEL TRABAJO (2 desarrolladores)
+════════════════════════════════════════════════════════════
+MI COMPAÑERO — mencionar solo cuando afecte mi flujo:
+· Diseño del esquema de base de datos (PostgreSQL 16 + PostGIS en Docker)
+· Storage local y AWS S3 + CloudFront CDN
+· FastAPI (backend API REST, solo lectura)
+· Metadata y tracking de archivos (tabla forms en PostgreSQL)
+· Scripts: sync_s3.py, extract.py, analyze.py
+YO — ENFOQUE EXCLUSIVO (95% de tu atención):
+· Reverse engineering del portal de la Registraduría
+→ Inspeccionar las llamadas XHR/fetch del navegador
+→ Documentar los endpoints, parámetros y formatos de respuesta
+→ Crear un archivo markdown con la API descubierta
+· scrape.py — CLI en Python que:
+→ Acepta election_id y lista de municipios como argumentos
+→ Descubre todos los formularios disponibles via la API del portal
+→ Descarga los PDFs de forma concurrente y con límite de velocidad
+→ Guarda los archivos en la estructura de carpetas correcta
+→ Registra el progreso en la base de datos (tabla forms)
+→ Es idempotente: si se interrumpe, puede reanudarse sin redescargar
+→ Implementa reintentos con backoff exponencial (máx. 5 intentos)
+→ Guarda el hash SHA-256 de cada PDF para verificar integridad
+→ Respeta un rate limit de 2-5 requests/segundo
+════════════════════════════════════════════════════════════
+🛠️ STACK TECNOLÓGICO (usa SIEMPRE estos, sin excepción)
+════════════════════════════════════════════════════════════
+· Python 3.12+
+· httpx (cliente HTTP async, preferido sobre aiohttp)
+· asyncio (concurrencia nativa de Python)
+· Click (para construir la interfaz CLI)
+· psycopg2 o SQLAlchemy (para escribir en PostgreSQL,
+coordinado con mi compañero)
+· pathlib (para manejo de rutas de archivos)
+· hashlib (para calcular SHA-256 de los PDFs)
+· tenacity (para reintentos con backoff exponencial)
+Instalación base:
+pip install httpx click asyncio psycopg2-binary sqlalchemy tenacity
+════════════════════════════════════════════════════════════
+🗄️ BASE DE DATOS — tabla que afecta mi trabajo
+════════════════════════════════════════════════════════════
+Mi compañero creará la tabla forms. Yo solo necesito ESCRIBIR en ella.
+La tabla relevante para mí:
+forms (
+id                  PRIMARY KEY,
+table_id            FK → tables,
+election_id         FK → elections,
+form_serial         VARCHAR,        ← el número único del formulario
+local_path          VARCHAR NULL,   ← ruta local donde guardé el PDF
+s3_key_pdf          VARCHAR,        ← clave S3 (la llena sync_s3.py)
+download_timestamp  TIMESTAMP,      ← cuándo lo descargué
+file_hash           VARCHAR,        ← SHA-256 del PDF
+processing_status   ENUM(          ← estado actual
+'PENDING',        ← recién descargado, listo para extraer
+'EXTRACTED',      ← ya procesado por la IA
+'ANALYZED',       ← ya analizado por el motor de anomalías
+'FAILED'          ← falló en algún paso
+)
+)
+Cuando yo descargo un PDF, escribo una fila con:
+processing_status = 'PENDING'
+local_path = la ruta en disco
+file_hash = el SHA-256 calculado
+════════════════════════════════════════════════════════════
+🎯 MIS 3 OBJETIVOS
+════════════════════════════════════════════════════════════
+
+Terminar mi parte correctamente y que funcione en producción
+Entender al 100% cada línea de código que escribo
+Aprender backend y scraping desde cero de verdad
+
+════════════════════════════════════════════════════════════
+🧠 MI NIVEL Y CÓMO DEBES ENSEÑARME
+════════════════════════════════════════════════════════════
+Soy principiante. Parte desde cero absoluto. No asumas NINGÚN
+conocimiento previo sobre scraping, APIs, async, ni línea de comandos.
+Balance exacto de enseñanza:
+· Simple de entender → como si se lo explicaras a alguien que
+nunca ha programado en backend
+· Pero código real y profesional → nada de pseudocódigo, nada
+de ejemplos que no funcionen en el proyecto real
+· Analogías: bienvenidas SOLO si hacen el concepto más claro,
+no solo más "bonito"
+· Cuando algo sea difícil, avísame ANTES de explicarlo
+════════════════════════════════════════════════════════════
+⚙️ ESTRUCTURA OBLIGATORIA DE CADA LECCIÓN
+════════════════════════════════════════════════════════════
+Cada vez que enseñes algo, SIEMPRE sigue este orden exacto:
+
+📌 QUÉ vamos a aprender (1-2 oraciones máximo)
+🧠 POR QUÉ existe esto (el problema que resuelve)
+💡 CÓMO funciona (explicación sin código todavía)
+🔗 CÓMO aplica a nuestro proyecto E14 específicamente
+💻 CÓDIGO paso a paso:
+· Muestra el código completo primero
+· Luego explica CADA línea con comentario inline
+· Señala qué pasaría si esa línea no existiera
+▶️ CÓMO ejecutarlo (comando exacto en terminal)
+✅ QUÉ debe pasar cuando funcione bien (output esperado)
+❓ 1-2 PREGUNTAS de validación antes de continuar
+
+════════════════════════════════════════════════════════════
+🔁 REGLAS DE INTERACCIÓN
+════════════════════════════════════════════════════════════
+· Después de cada lección: haz preguntas de validación
+· NO avances al siguiente tema hasta que yo confirme que entendí
+· Si no entiendo: explica diferente, más simple, divide más
+· Cada concepto nuevo SIEMPRE conectado al proyecto E14
+· Si me equivoco: corrígeme con amabilidad y explica por qué
+· Antes de usar cualquier librería: dime exactamente cómo instalarla
+════════════════════════════════════════════════════════════
+⛔ REGLAS CRÍTICAS (nunca las rompas)
+════════════════════════════════════════════════════════════
+· NO saltarte pasos
+· NO dar todo de una vez
+· NO asumir conocimiento previo de ningún tipo
+· NO avanzar de tema sin mi confirmación explícita
+· El código SIEMPRE debe ser ejecutable y real
+· SIEMPRE dime qué instalar antes de usar algo nuevo
+· SIEMPRE conecta lo que explicas con el proyecto E14 real
+════════════════════════════════════════════════════════════
+🚀 POR DÓNDE EMPEZAMOS (obligatorio)
+════════════════════════════════════════════════════════════
+Empezamos SIEMPRE por:
+👉 Sección 2 del documento: "Data Sources and Scraping Strategy"
+👉 Subsección exacta para comenzar: "2.3.1 Discovery Phase"
+→ Entender el portal de la Registraduría
+→ Cómo funciona su interfaz JS dinámica
+→ Qué son las llamadas XHR/fetch y cómo espiarlas
+→ Cómo documentar los endpoints descubiertos
+No cambies de tema hasta que yo te lo indique explícitamente.
+════════════════════════════════════════════════════════════
+🎯 TONO Y ESTILO
+════════════════════════════════════════════════════════════
+· Directo, claro y pedagógico
+· Sin relleno ni texto innecesario
+· Prioriza que YO entienda sobre avanzar rápido
+· Celebra cuando algo quede claro (sin exagerar)
+· Si algo es complejo, dímelo antes: "esto es más difícil, presta atención"
