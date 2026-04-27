@@ -1,0 +1,169 @@
+<!DOCTYPE html><html lang="es"><head><meta http-equiv="origin-trial" content="A7vZI3v+Gz7JfuRolKNM4Aff6zaGuT7X0mf3wtoZTnKv6497cVMnhy03KDqX7kBz/q/iidW7srW31oQbBt4VhgoAAACUeyJvcmlnaW4iOiJodHRwczovL3d3dy5nb29nbGUuY29tOjQ0MyIsImZlYXR1cmUiOiJEaXNhYmxlVGhpcmRQYXJ0eVN0b3JhZ2VQYXJ0aXRpb25pbmczIiwiZXhwaXJ5IjoxNzU3OTgwODAwLCJpc1N1YmRvbWFpbiI6dHJ1ZSwiaXNUaGlyZFBhcnR5Ijp0cnVlfQ==">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" href="https://e14_pres1v_2022.registraduria.gov.co/images/favicon.png" type="image/png">
+        <title>Consulta Actas E14</title>
+        <link href="https://e14_pres1v_2022.registraduria.gov.co/css/icons.css" rel="stylesheet">
+        <link href="https://e14_pres1v_2022.registraduria.gov.co/css/bootstrap.min_new.css" rel="stylesheet">
+        <link href="https://e14_pres1v_2022.registraduria.gov.co/css/style.css" rel="stylesheet">
+        <link href="https://e14_pres1v_2022.registraduria.gov.co/css/responsive.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <!--Start left side Menu-->
+        <div class="left-side sticky-left-side" tabindex="0" style="overflow: hidden; outline: none;">
+            <!--logo-->
+            <div class="logo">
+                <img src="https://e14_pres1v_2022.registraduria.gov.co/images/logo-registraduria.png" alt="" width="100px" height="65px">
+            </div>
+            <div class="logo-icon text-center">
+                <img src="https://e14_pres1v_2022.registraduria.gov.co/images/logo-registraduria.png" alt="" width="50px" height="50px">
+            </div>
+            <hr class="hr" style="height:0px;">
+            <!--logo-->
+            <div class="left-side-inner">
+                <!--Star sidebar nav-->
+                <div class="panel-group accordion-main faq-main" id="accordion" style="margin-bottom: 0px;">
+                    <div id="corporacion" class="menu-list">
+                        <h6 class="panel-title" style="margin-bottom: 5px;">
+                            <img src="https://e14_pres1v_2022.registraduria.gov.co/images/map_colombia.svg" width="30px" height="30px" alt="">
+                            Corporación:
+                        </h6>
+                        <div id="collapseOne" class="sub-menu-list">
+                            <div class="nav-active">
+                                <select class="form-select" id="selectCorp" name="selectCorp" autocomplete="off"> </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="departamentos" class="menu-list">
+                        <h6 class="panel-title" style="margin-bottom: 5px;">
+                            <img src="https://e14_pres1v_2022.registraduria.gov.co/images/map_colombia.svg" width="30px" height="30px" alt="">
+                            Departamentos:
+                        </h6>
+                        <div id="collapseOne" class="sub-menu-list">
+                            <div class="nav-active" id="divSelectDpto">
+                                <select class="form-select" id="selectDepto" name="selectDepto" autocomplete="off">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="avancePais" class="menu-list" style="margin-top: 10px">
+                    </div>
+                    <div id="avanceDepartamentos" class="menu-list" style="margin-bottom:10px;">
+                    </div>
+                </div>
+                <!--End sidebar nav-->
+            </div>
+        </div>
+        <!--End left side menu-->
+
+        <!-- main content start-->
+        <div class="main-content">
+            <!-- header section start-->
+            <div class="header-section">
+                <a class="col-sm-1 toggle-btn"><i class="fa fa-bars"></i></a>
+                <div class="d-flex justify-content-between">
+                    <div class="col-sm-12 col-md-2 col-lg-2">
+                        <img src="https://e14_pres1v_2022.registraduria.gov.co/images/logo_siglo21.png" alt="" width="190px" height="80px">
+                    </div>   
+                    <div class="col-sm-12 col-md-8 col-lg-8" style="text-align: center;">
+                        <h5 style="margin-top: 5px; margin-bottom: 0px; color: #fff; font-weight: bold;">PUBLICACIÓN E14 ELECCIONES PRESIDENCIALES 2022</h5>
+                        <h6 style="margin-top: 5px; margin-bottom: 3px; color: #fff; font-weight: bold;">| REGISTRADURÍA NACIONAL DEL ESTADO CIVIL |</h6>
+                        <label style="margin-top: 5px; font-size: 1.2em; text-transform: uppercase; color: #fff;" id="pai"></label>
+                    </div>
+                    <div class="col-sm-12 col-md-2 col-lg-2" style="display: flex;">
+                        <img src="https://e14_pres1v_2022.registraduria.gov.co/images/logo_elecciones.png" alt="" width="110px" height="80px">
+                        <img src="https://e14_pres1v_2022.registraduria.gov.co/images/logo_galantes.png" alt="" width="110px" height="80px">
+                    </div>
+                </div>
+            </div>
+            <!-- header section end-->
+
+            <!--body wrapper start-->
+            <div class="wrapper" style="min-height: 900px;">
+                <form method="POST" action="/descargae14" target="_blank" id="formE14">
+                    <input type="hidden" name="token" id="token">
+                    <div class="white-box" style="margin-bottom: 10px">
+                        <!--Start selects -->
+                        <div class="row">
+                            <div class="col-sm-12 col-md-10 col-lg-10">
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-3 col-lg-3">
+                                        <label for="selectMpio" class="control-label"><i class="fa fa-map-marker"></i>
+                                            Municipio:</label>
+                                        <div class="select-combo form-group" id="divSelectMpio">
+                                            <select id="selectMpio" class="form-select" name="selectMpio" autocomplete="off">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-3 col-lg-3">
+                                        <label for="selectZona" class="control-label"><i class="fa fa-map-marker"></i>
+                                            Zona:</label>
+                                        <div class="select-combo form-group" id="divSelectZona">
+                                            <select id="selectZona" name="selectZona" class="form-select" autocomplete="off">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-3 col-lg-3" style="display:none" id="displayCom">
+                                        <label for="selectCom" class="control-label"><i class="fa fa-map-marker"></i>
+                                            Comuna:</label>
+                                        <div class="select-combo form-group" id="divSelectCom">
+                                            <select id="selectCom" name="selectCom" class="form-select" autocomplete="off">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-3 col-lg-3">
+                                        <label for="selectPto" class="control-label"><i class="fa fa-map-marker"></i>
+                                            Puesto:</label>
+                                        <div class="select-combo form-group" id="divSelectPto">
+                                            <select id="selectPto" name="selectPto" class="form-select" autocomplete="off">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-2 col-lg-2 text-center">
+                                <input type="button" name="btnConsultarE14" id="btnConsultarE14" value="Consultar" class="btn btn-warning2" style="margin-top:10px;">
+                                       <script type="text/javascript" async="" charset="utf-8" src="https://www.gstatic.com/recaptcha/releases/gTpTIWhbKpxADzTzkcabhXN4/recaptcha__es.js" crossorigin="anonymous" integrity="sha384-fP3JpO1tWgC6suGUnDcyaXgMPTGIUV3sClGD9U5ceipNYNmwCpoP4+hi0gtHlZaG"></script><script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+<div id="_g-recaptcha"></div>
+<div class="g-recaptcha" data-sitekey="6Lc2Q7YUAAAAAFuQgA7uPKXf-Sq4X8a_TEbheABT" data-size="invisible" data-callback="_submitForm" data-badge="bottomright"></div><script src="https://www.google.com/recaptcha/api.js?hl=es" async="" defer=""></script>
+<script>var _submitForm,_captchaForm,_captchaSubmit,_execute=true,_captchaBadge;</script><script>window.addEventListener('load', _loadCaptcha);
+function _loadCaptcha(){_captchaForm=document.querySelector("#_g-recaptcha").closest("form");_captchaSubmit=_captchaForm.querySelector('[type=submit]');_submitForm=function(){if(typeof _submitEvent==="function"){_submitEvent();grecaptcha.reset();}else{_captchaForm.submit();}};_captchaForm.addEventListener('submit',function(e){e.preventDefault();if(typeof _beforeSubmit==='function'){_execute=_beforeSubmit(e);}if(_execute){grecaptcha.execute();}});}</script>
+
+                            </div>
+                        </div>
+                        <!--End select -->
+                    </div>
+                    <div>
+                        <!-- Star table -->
+                        <div class="col-md-12" id="cargaE14"></div>
+                        <input type="hidden" name="srcDescargaE14" id="srcDescargaE14">
+                        <input type="submit" name="consultarE14" id="consultarE14" value="Consultar" style="display:none">
+                        <!-- End table -->
+                    </div>
+                </form>
+            </div>
+            <!--End main content -->
+
+            <!--Start  Footer -->
+            <footer class="footer-main">PUBLICACIÓN E14 ELECCIONES PRESIDENCIALES 2022 | Todos los derechos
+                reservados ©2019.
+                &nbsp;<span style="color:white">PRINCIPAL 1</span>
+                <br>
+                <span style="font-weight: 600">Se recomienda desactivar el bloqueo de ventanas emergentes en su navegador
+                    para visualizar los documentos.&nbsp;<span style="color:white">PRINCIPAL 1</span>
+            </span></footer>
+            <!--End footer -->
+        </div>
+
+        <!--Begin core plugin -->
+        <script src="https://e14_pres1v_2022.registraduria.gov.co/js/jqueryL.min.js"></script>
+        <script src="https://e14_pres1v_2022.registraduria.gov.co/js/popper.min.js"></script>
+        <script src="https://e14_pres1v_2022.registraduria.gov.co/js/bootstrapL.min.js"></script>
+        <script src="https://e14_pres1v_2022.registraduria.gov.co/js/jquery.slimscroll.js "></script>
+        <script src="https://e14_pres1v_2022.registraduria.gov.co/js/jquery.nicescroll.js"></script>
+        <script src="https://e14_pres1v_2022.registraduria.gov.co/js/functions.js"></script><div id="ascrail2000" class="nicescroll-rails nicescroll-rails-vr" style="width: 5px; z-index: 100; background: rgb(204, 204, 204); cursor: default; position: fixed; top: 0px; left: 235px; height: 1080px; display: none;"><div class="nicescroll-cursors" style="position: relative; top: 0px; float: right; width: 5px; height: 0px; background-color: rgb(204, 204, 204); background-clip: padding-box; border-radius: 0px;"></div></div><div id="ascrail2000-hr" class="nicescroll-rails nicescroll-rails-hr" style="height: 5px; z-index: 100; background: rgb(204, 204, 204); top: 1075px; left: 0px; position: fixed; cursor: default; display: none;"><div class="nicescroll-cursors" style="position: absolute; top: 0px; height: 5px; width: 0px; background-color: rgb(204, 204, 204); background-clip: padding-box; border-radius: 0px;"></div></div>
+        <script src="https://e14_pres1v_2022.registraduria.gov.co/js/consulta_1.js"></script>
+        <!-- End core plugin -->
+    
+</body></html>

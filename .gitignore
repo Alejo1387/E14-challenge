@@ -1,6 +1,19 @@
 # Ignore all pycache directories
 __pycache__/
 
+
+requirements.txt
+
+informacion.md
+
+debug_error_500.html
+
+debug_selectMpio.html
+debug_selectZona.html
+debug_selectPuesto.html
+debug_selectMesa.html
+debug_selectMesa.html
+
 # Ignore DB
 e14_challenge.db
 
