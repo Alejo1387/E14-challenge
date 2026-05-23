@@ -163,19 +163,18 @@ class Zone(Base):
     __tablename__ = "zones"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    municipality_code = Column(
-        String(3),
-        ForeignKey("municipalities.code"),
-        nullable=False
-    )
-    municipality_department = Column(
-        String(2),
-        ForeignKey("municipalities.department_code"),
-        nullable=False
-    )
-    zone_number = Column(String(3), nullable=False)  # "01", "02", etc.
+    municipality_code = Column(String(3), nullable=False)
+    municipality_department = Column(String(2), nullable=False)
+    zone_number = Column(String(3), nullable=False)  # "01", "001", etc.
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["municipality_code", "municipality_department"],
+            ["municipalities.code", "municipalities.department_code"],
+        ),
+    )
+
     # Relaciones
     municipality = relationship(
         "Municipality",
