@@ -16,30 +16,31 @@ from pathlib import Path
 # Path() crea una ruta que funciona en Windows, Mac y Linux
 # __file__ = "dónde está este archivo (config.py)"
 # .parent = la carpeta padre (backend/)
+# .parent.parent = la carpeta abuelo (E14-challenge/)
 BASE_DIR = Path(__file__).parent
-
-print(f"DEBUG: BASE_DIR = {BASE_DIR}")
+PROJECT_ROOT = BASE_DIR.parent  # E14-challenge/ (nivel superior)
 
 # ============================================================================
-# 2. RUTAS DE DATOS
+# 2. RUTAS DE DATOS (todo dentro de backend/data/)
 # ============================================================================
 
-# Carpeta donde Persona A descarga los PDFs
-DATA_RAW_DIR = BASE_DIR / "data" / "raw"
+# Carpeta raíz de datos del backend
+BACKEND_DATA_DIR = BASE_DIR / "data"
+# Alias usado por scripts como setup_db.py
+DATA_DIR = BACKEND_DATA_DIR
 
-# Carpeta donde irán datos procesados después
-DATA_PROCESSED_DIR = BASE_DIR / "data" / "processed"
+# PDFs crudos descargados: backend/data/raw/{depto}/{muni}/{zona}/{puesto}/{mesa}.pdf
+DATA_RAW_DIR = BACKEND_DATA_DIR / "raw"
 
-# Carpeta general de datos
-DATA_DIR = BASE_DIR / "data"
+# PDFs ya procesados (OCR, etc.)
+DATA_PROCESSED_DIR = BACKEND_DATA_DIR / "processed"
 
 # ============================================================================
 # 3. BASE DE DATOS
 # ============================================================================
 
-# Ubicación del archivo SQLite (la BD)
-# Usamos SQLite durante desarrollo, PostgreSQL en producción
-DATABASE_PATH = DATA_DIR / "e14_challenge.db"
+# Ubicación del archivo SQLite (dentro de backend/data/)
+DATABASE_PATH = BACKEND_DATA_DIR / "e14_challenge.db"
 
 # URL para conectar a SQLite
 # Formato: "sqlite:////ruta/absoluta/archivo.db"
@@ -60,9 +61,12 @@ ELECTION_YEAR = 2022
 # 5. CONFIGURACIÓN DE ALMACENAMIENTO
 # ============================================================================
 
-# Estructura de carpetas para organizar PDFs
-# Formato: {dept_code}_{dept_name}/{muni_code}_{muni_name}/
-STORAGE_STRUCTURE = "{dept_code}_{dept_name}/{muni_code}_{muni_name}"
+# Estructura de carpetas (scraper Playwright / Registraduría)
+# backend/data/raw/{depto}/{muni}/{zona}/{puesto}/{mesa}.pdf
+STORAGE_STRUCTURE = "{dept_code}/{muni_code}/{zone_code}/{station_code}"
+
+# Profundidad de carpetas bajo data/raw/ antes del archivo .pdf
+RAW_PATH_SEGMENTS = 4
 
 # ============================================================================
 # 6. CONFIGURACIÓN DE VALIDACIÓN
@@ -96,7 +100,7 @@ def create_directories():
     ¿Por qué? Para que no falle cuando intentes guardar un PDF
     si la carpeta no existe.
     """
-    for directory in [DATA_RAW_DIR, DATA_PROCESSED_DIR, LOGS_DIR]:
+    for directory in [BACKEND_DATA_DIR, DATA_RAW_DIR, DATA_PROCESSED_DIR, LOGS_DIR]:
         directory.mkdir(parents=True, exist_ok=True)
         print(f"✅ Carpeta lista: {directory}")
 
@@ -118,6 +122,7 @@ if __name__ == "__main__":
     print("🔧 CONFIGURACIÓN DEL PROYECTO E14 CHALLENGE")
     print("="*60)
     print(f"Base Directory:     {BASE_DIR}")
+    print(f"Backend Data:       {BACKEND_DATA_DIR}")
     print(f"Data Raw:           {DATA_RAW_DIR}")
     print(f"Data Processed:     {DATA_PROCESSED_DIR}")
     print(f"Database:           {DATABASE_PATH}")
