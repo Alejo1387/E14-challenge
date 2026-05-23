@@ -438,6 +438,112 @@ def obtener_todos_formularios(limite: int = 100) -> List[dict]:
         ]
 
 
+def obtener_mesa_por_ubicacion(
+    dept_code: str,
+    muni_code: str,
+    zone_number: str,
+    station_number: str,
+    table_number: str,
+) -> Optional[dict]:
+    """
+    Busca una mesa por códigos DANE (depto, muni, zona, puesto, mesa).
+
+    Útil para validar antes de registrar un PDF o para el frontend.
+    """
+    from src.storage.pdf_paths import normalizar_ubicacion
+
+    u = normalizar_ubicacion(
+        dept_code, muni_code, zone_number, station_number, table_number
+    )
+
+    with session_scope() as session:
+        mesa = (
+            session.query(VotingTable)
+            .join(Station, VotingTable.station_id == Station.id)
+            .join(Zone, Station.zone_id == Zone.id)
+            .filter(
+                Zone.municipality_code == u["muni_code"],
+                Zone.municipality_department == u["dept_code"],
+                Zone.zone_number == u["zone_code"],
+                Station.station_number == u["station_code"],
+                VotingTable.table_number == u["table_number"],
+            )
+            .first()
+        )
+        if not mesa:
+            return None
+
+        estacion = mesa.station
+        zona = estacion.zone
+
+        return {
+            "id": mesa.id,
+            "table_number": mesa.table_number,
+            "registered_voters": mesa.registered_voters,
+            "station_id": estacion.id,
+            "station_number": estacion.station_number,
+            "station_name": estacion.name,
+            "zone_id": zona.id,
+            "zone_number": zona.zone_number,
+            "municipality_code": zona.municipality_code,
+            "department_code": zona.municipality_department,
+        }
+
+
+def obtener_formulario_con_ubicacion(form_id: int) -> Optional[dict]:
+    """
+    Formulario E-14 con jerarquía completa para el frontend.
+
+    Incluye: departamento, municipio, zona, puesto, mesa, ruta del PDF y estado.
+    """
+    with session_scope() as session:
+        form = session.query(Form).filter_by(id=form_id).first()
+        if not form:
+            return None
+
+        mesa = form.voting_table
+        estacion = mesa.station
+        zona = estacion.zone
+        muni = form.municipality
+        dept = form.department
+
+        return {
+            "id": form.id,
+            "form_serial": form.form_serial,
+            "election_id": form.election_id,
+            "local_path": form.local_path,
+            "file_hash": form.file_hash,
+            "processing_status": form.processing_status.value
+            if form.processing_status
+            else None,
+            "quality": form.quality.value if form.quality else None,
+            "download_timestamp": form.download_timestamp,
+            "department": {
+                "code": dept.code,
+                "name": dept.name,
+            },
+            "municipality": {
+                "code": muni.code,
+                "name": muni.name,
+            },
+            "zone": {
+                "id": zona.id,
+                "number": zona.zone_number,
+            },
+            "station": {
+                "id": estacion.id,
+                "number": estacion.station_number,
+                "name": estacion.name,
+                "address": estacion.address,
+            },
+            "voting_table": {
+                "id": mesa.id,
+                "number": mesa.table_number,
+                "registered_voters": mesa.registered_voters,
+            },
+        }
+
+
 def obtener_formulario_por_serial(form_serial: str) -> Optional[dict]:
     """
     Obtiene UN formulario por su número serial.
@@ -459,6 +565,10 @@ def obtener_formulario_por_serial(form_serial: str) -> Optional[dict]:
         if not form:
             return None
         
+        mesa = form.voting_table
+        estacion = mesa.station
+        zona = estacion.zone
+
         return {
             "id": form.id,
             "form_serial": form.form_serial,
@@ -471,7 +581,10 @@ def obtener_formulario_por_serial(form_serial: str) -> Optional[dict]:
             "quality": form.quality.value if form.quality else None,
             "error_message": form.error_message,
             "created_at": form.created_at,
-            "updated_at": form.updated_at
+            "updated_at": form.updated_at,
+            "zone_number": zona.zone_number,
+            "station_number": estacion.station_number,
+            "table_number": mesa.table_number,
         }
 
 
