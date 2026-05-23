@@ -24,7 +24,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Importar lo que necesitamos
-from config import DATABASE_URL, DATABASE_PATH, DATA_DIR
+from config import DATABASE_URL, DATABASE_PATH, BACKEND_DATA_DIR
 from src.database.schema import create_all_tables, Base
 
 # ============================================================================
@@ -43,8 +43,8 @@ def main():
     # PASO 1: Verificar que existen las carpetas de datos
     print("📁 Verificando carpetas de datos...")
     try:
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
-        print(f"   ✅ Carpeta de datos lista: {DATA_DIR}\n")
+        BACKEND_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        print(f"   ✅ Carpeta de datos lista: {BACKEND_DATA_DIR}\n")
     except Exception as e:
         print(f"   ❌ Error creando carpeta: {e}\n")
         return False
