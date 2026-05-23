@@ -39,38 +39,40 @@ from sqlalchemy.orm import Session
 
 # Lista de todos los departamentos de Colombia
 DEPARTAMENTOS_COLOMBIA = [
-    ("01", "Amazonas"),
-    ("02", "Antioquia"),
-    ("03", "Arauca"),
-    ("04", "Atlántico"),
+    ("01", "Antioquia"),
+    ("03", "Atlántico"),
     ("05", "Bolívar"),
-    ("06", "Boyacá"),
-    ("07", "Caldas"),
-    ("08", "Caquetá"),
-    ("09", "Casanare"),
-    ("10", "Cauca"),
-    ("11", "Cesar"),
-    ("12", "Chocó"),
+    ("07", "Boyacá"),
+    ("09", "Caldas"),
+    ("11", "Cauca"),
+    ("12", "Cesar"),
     ("13", "Córdoba"),
-    ("14", "Cundinamarca"),
-    ("15", "Guainía"),
-    ("16", "Guaviare"),
-    ("17", "Huila"),
-    ("18", "La Guajira"),
-    ("19", "Magdalena"),
-    ("20", "Meta"),
-    ("21", "Nariño"),
-    ("22", "Norte de Santander"),
-    ("23", "Putumayo"),
-    ("24", "Quindío"),
-    ("25", "Risaralda"),
-    ("26", "Santander"),
-    ("27", "Sucre"),
-    ("28", "Tolima"),
-    ("29", "Valle del Cauca"),
-    ("30", "Vaupés"),
-    ("31", "Vichada"),
-    ("32", "Bogotá D.C."),  # Bogotá es su propio departamento
+    ("15", "Cundinamarca"),
+    ("16", "Bogotá D.C."), # Bogotá es su propio departamento
+    ("17", "Chocó"),
+    ("19", "Huila"),
+    ("21", "Magdalena"),
+    ("23", "Nariño"),
+    ("24", "Risaralda"),
+    ("25", "Norte de Santander"),
+    ("26", "Quindío"),
+    ("27", "Santander"),
+    ("28", "Sucre"),
+    ("29", "Tolima"),
+    ("31", "Valle"),
+    ("40", "Arauca"),
+    ("44", "Caquetá"),
+    ("46", "Casanare"),
+    ("48", "La Guajira"),
+    ("50", "Guainía"),
+    ("52", "Meta"),
+    ("54", "Guaviare"),
+    ("56", "San Ándres"),
+    ("60", "Amazonas"),
+    ("64", "Putumayo"),
+    ("68", "Vaupés"),
+    ("72", "Vichada"),
+    ("88", "Consulados")
 ]
 
 # Municipios principales de las 6 ciudades objetivo
@@ -308,13 +310,22 @@ def insertar_pdfs_prueba(session: Session) -> int:
             print(f"   ⏭️  Formulario {form_serial} ya existe")
             continue
         
+        zona = mesa.station.zone
+        local_path = (
+            f"data/raw/{zona.municipality_department}/"
+            f"{zona.municipality_code}/"
+            f"{zona.zone_number}/"
+            f"{mesa.station.station_number}/"
+            f"{mesa.table_number}.pdf"
+        )
+
         form = Form(
             form_serial=form_serial,
             election_id=ELECTION_ID,
-            department_code=mesa.station.zone.municipality_department,
-            municipality_code=mesa.station.zone.municipality_code,
+            department_code=zona.municipality_department,
+            municipality_code=zona.municipality_code,
             voting_table_id=mesa.id,
-            local_path=f"data/raw/TEST/{form_serial}.pdf",
+            local_path=local_path,
             file_hash="HASH_FICTICIO_" + form_serial,
             download_timestamp=datetime.utcnow(),
             processing_status=ProcessingStatus.PENDING
