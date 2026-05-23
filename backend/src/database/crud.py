@@ -49,6 +49,117 @@ from src.database.schema import (
 from src.database.connection import session_scope
 
 # ============================================================================
+# JERARQUÍA ELECTORAL (zona → puesto → mesa)
+# ============================================================================
+
+def _variantes_codigo_zona(zone_number: str) -> list[str]:
+    """Acepta '001' del scraper y '01' del seed."""
+    z = str(zone_number).strip()
+    variantes = [z]
+    if z.isdigit():
+        sin_ceros = z.lstrip("0") or "0"
+        variantes.extend([sin_ceros, sin_ceros.zfill(2), sin_ceros.zfill(3)])
+    vistos: list[str] = []
+    for v in variantes:
+        if v not in vistos:
+            vistos.append(v)
+    return vistos
+
+
+def _buscar_zona(session, dept_code: str, muni_code: str, zone_number: str):
+    for zn in _variantes_codigo_zona(zone_number):
+        zona = session.query(Zone).filter_by(
+            municipality_code=muni_code,
+            municipality_department=dept_code,
+            zone_number=zn,
+        ).first()
+        if zona:
+            return zona
+    return None
+
+
+def resolver_voting_table_id(
+    department_code: str,
+    municipality_code: str,
+    zone_number: str,
+    station_number: str,
+    table_number: str,
+) -> Optional[int]:
+    """
+    Obtiene o crea zona, puesto y mesa; devuelve voting_tables.id.
+
+    Usado al registrar PDFs con ruta:
+        data/raw/{depto}/{muni}/{zona}/{puesto}/{mesa}.pdf
+    """
+    from src.storage.pdf_paths import normalizar_ubicacion
+
+    u = normalizar_ubicacion(
+        department_code,
+        municipality_code,
+        zone_number,
+        station_number,
+        table_number,
+    )
+
+    try:
+        with session_scope() as session:
+            muni = session.query(Municipality).filter_by(
+                code=u["muni_code"],
+                department_code=u["dept_code"],
+            ).first()
+            if not muni:
+                print(
+                    f"❌ Municipio {u['muni_code']} (depto {u['dept_code']}) "
+                    "no existe en BD. Ejecuta seed_data.py primero."
+                )
+                return None
+
+            zona = _buscar_zona(
+                session, u["dept_code"], u["muni_code"], u["zone_code"]
+            )
+            if not zona:
+                zona = Zone(
+                    municipality_code=u["muni_code"],
+                    municipality_department=u["dept_code"],
+                    zone_number=u["zone_code"],
+                )
+                session.add(zona)
+                session.flush()
+
+            estacion = session.query(Station).filter_by(
+                zone_id=zona.id,
+                station_number=u["station_code"],
+            ).first()
+            if not estacion:
+                estacion = Station(
+                    zone_id=zona.id,
+                    station_number=u["station_code"],
+                    name=f"Puesto {u['station_code']}",
+                )
+                session.add(estacion)
+                session.flush()
+
+            mesa = session.query(VotingTable).filter_by(
+                station_id=estacion.id,
+                table_number=u["table_number"],
+            ).first()
+            if not mesa:
+                mesa = VotingTable(
+                    station_id=estacion.id,
+                    table_number=u["table_number"],
+                )
+                session.add(mesa)
+                session.flush()
+
+            session.commit()
+            return mesa.id
+
+    except Exception as e:
+        print(f"❌ Error resolviendo mesa de votación: {e}")
+        return None
+
+
+# ============================================================================
 # FUNCIONES PARA DEPARTAMENTOS
 # ============================================================================
 
