@@ -1258,6 +1258,13 @@ MUNICIPIOS_OBJETIVO = [
     ("68", "013", "BUENOS AIRES (PACOA)"),
     ("68", "017", "TARAIRA"),
     ("68", "022", "YAVARATE"),
+
+    # Vichada (dept 72)
+    ("72", "001", "PUERTO CARREÑO"),
+    ("72", "002", "SANTA ROSALIA"),
+    ("72", "006", "CUMARIBO"),
+    ("72", "008", "LA PRIMAVERA"),
+
 ]
 
 # ============================================================================
