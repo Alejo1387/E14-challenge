@@ -825,7 +825,7 @@ MUNICIPIOS_OBJETIVO = [
     ("23", "142", "TUQUERRES"),
     ("23", "145", "YACUANQUER"),
 
-    # Risaralda (dept 66)
+    # Risaralda (dept 24)
     ("24", "001", "PEREIRA"),
     ("24", "008", "APIA"),
     ("24", "013", "BALBOA"),
@@ -841,7 +841,7 @@ MUNICIPIOS_OBJETIVO = [
     ("24", "086", "SANTA ROSA DE CABAL"),
     ("24", "094", "SANTUARIO"),
 
-    # Norte de Santander (dept 54)
+    # Norte de Santander (dept 25)
     ("25", "001", "CUCUTA"),
     ("25", "004", "ABREGO"),
     ("25", "007", "ARBOLEDAS"),
@@ -883,7 +883,7 @@ MUNICIPIOS_OBJETIVO = [
     ("25", "097", "VILLA CARO"),
     ("25", "100", "VILLA DEL ROSARIO"),
 
-    # Quindío (dept 63)
+    # Quindío (dept 26)
     ("26", "001", "ARMENIA"),
     ("26", "005", "BUENAVISTA"),
     ("26", "010", "CALARCA"),
@@ -897,7 +897,7 @@ MUNICIPIOS_OBJETIVO = [
     ("26", "080", "QUIMBAYA"),
     ("26", "090", "SALENTO"),
 
-    # Santander (dept 68)
+    # Santander (dept 27)
     ("27", "001", "BUCARAMANGA"),
     ("27", "004", "AGUADA"),
     ("27", "007", "ALBANIA"),
@@ -986,33 +986,33 @@ MUNICIPIOS_OBJETIVO = [
     ("27", "221", "VILLANUEVA"),
     ("27", "223", "ZAPATOCA"),
 
-    # Sucre (dept 70)
-    ("70", "001", "SINCELEJO"),
-    ("70", "010", "BUENAVISTA"),
-    ("70", "020", "CAIMITO"),
-    ("70", "030", "COLOSO (RICAURTE)"),
-    ("70", "040", "COROZAL"),
-    ("70", "041", "COVEÑAS"),
-    ("70", "042", "EL ROBLE"),
-    ("70", "045", "CHALAN"),
-    ("70", "048", "GALERAS (NUEVA GRANADA)"),
-    ("70", "049", "GUARANDA"),
-    ("70", "050", "LA UNION"),
-    ("70", "055", "LOS PALMITOS"),
-    ("70", "060", "MAJAGUAL"),
-    ("70", "080", "MORROA"),
-    ("70", "100", "OVEJAS"),
-    ("70", "120", "PALMITO"),
-    ("70", "160", "SAMPUES"),
-    ("70", "180", "SAN BENITO ABAD"),
-    ("70", "190", "SAN JUAN DE BETULIA (BETULIA)"),
-    ("70", "200", "SAN MARCOS"),
-    ("70", "220", "SAN ONOFRE"),
-    ("70", "240", "SAN PEDRO"),
-    ("70", "260", "SINCE"),
-    ("70", "280", "SUCRE"),
-    ("70", "300", "TOLU"),
-    ("70", "320", "TOLUVIEJO"),
+    # Sucre (dept 28)
+    ("28", "001", "SINCELEJO"),
+    ("28", "010", "BUENAVISTA"),
+    ("28", "020", "CAIMITO"),
+    ("28", "030", "COLOSO (RICAURTE)"),
+    ("28", "040", "COROZAL"),
+    ("28", "041", "COVEÑAS"),
+    ("28", "042", "EL ROBLE"),
+    ("28", "045", "CHALAN"),
+    ("28", "048", "GALERAS (NUEVA GRANADA)"),
+    ("28", "049", "GUARANDA"),
+    ("28", "050", "LA UNION"),
+    ("28", "055", "LOS PALMITOS"),
+    ("28", "060", "MAJAGUAL"),
+    ("28", "080", "MORROA"),
+    ("28", "100", "OVEJAS"),
+    ("28", "120", "PALMITO"),
+    ("28", "160", "SAMPUES"),
+    ("28", "180", "SAN BENITO ABAD"),
+    ("28", "190", "SAN JUAN DE BETULIA (BETULIA)"),
+    ("28", "200", "SAN MARCOS"),
+    ("28", "220", "SAN ONOFRE"),
+    ("28", "240", "SAN PEDRO"),
+    ("28", "260", "SINCE"),
+    ("28", "280", "SUCRE"),
+    ("28", "300", "TOLU"),
+    ("28", "320", "TOLUVIEJO"),
 
     # Tolima (dept 73)
     ("73", "001", "IBAGUE"),
