@@ -1222,6 +1222,19 @@ MUNICIPIOS_OBJETIVO = [
     # San Andrés (dept 56)
     ("56", "001", "SAN ANDRES"),
     ("56", "004", "PROVIDENCIA"),
+
+    # Amazonas (dept 60)
+    ("60", "001", "LETICIA"),
+    ("60", "007", "PUERTO NARIÑO"),
+    ("60", "010", "EL ENCANTO"),
+    ("60", "013", "LA CHORRERA"),
+    ("60", "016", "LA PEDRERA"),
+    ("60", "017", "LA VICTORIA"),
+    ("60", "019", "MIRITI PARANA"),
+    ("60", "021", "PUERTO SANTANDER"),
+    ("60", "022", "TARAPACA"),
+    ("60", "030", "PUERTO ALEGRIA"),
+    ("60", "040", "PUERTO ARICA"),
 ]
 
 # ============================================================================
