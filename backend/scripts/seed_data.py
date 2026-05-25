@@ -1212,6 +1212,12 @@ MUNICIPIOS_OBJETIVO = [
     ("52", "060", "SAN MARTIN DE LOS LLANOS"),
     ("52", "074", "URIBE"),
     ("52", "080", "VISTA HERMOSA"),
+
+    # Guaviare
+    ("54", "001", "SAN JOSE DEL GUAVIARE"),
+    ("54", "003", "CALAMAR"),
+    ("54", "007", "EL RETORNO"),
+    ("54", "012", "MIRAFLORES"),
 ]
 
 # ============================================================================
