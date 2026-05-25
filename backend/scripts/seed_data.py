@@ -1133,6 +1133,27 @@ MUNICIPIOS_OBJETIVO = [
     ("44", "022", "SOLANO"),
     ("44", "024", "SOLITA"),
     ("44", "040", "VALPARAISO"),
+
+    # Casanare (dept 46)
+    ("46", "001", "YOPAL"),
+    ("46", "040", "AGUAZUL"),
+    ("46", "120", "CHAMEZA"),
+    ("46", "320", "HATO COROZAL"),
+    ("46", "480", "LA SALINA"),
+    ("46", "520", "MANI"),
+    ("46", "540", "MONTERREY"),
+    ("46", "560", "NUNCHIA"),
+    ("46", "640", "OROCUE"),
+    ("46", "680", "PAZ DE ARIPORO (MORENO)"),
+    ("46", "700", "PORE"),
+    ("46", "760", "RECETOR"),
+    ("46", "800", "SABANALARGA"),
+    ("46", "815", "SACAMA"),
+    ("46", "830", "SAN LUIS DE PALENQUE"),
+    ("46", "840", "TAMARA"),
+    ("46", "850", "TAURAMENA"),
+    ("46", "865", "TRINIDAD"),
+    ("46", "880", "VILLANUEVA"),
 ]
 
 # ============================================================================
