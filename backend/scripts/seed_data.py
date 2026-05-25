@@ -1235,6 +1235,21 @@ MUNICIPIOS_OBJETIVO = [
     ("60", "022", "TARAPACA"),
     ("60", "030", "PUERTO ALEGRIA"),
     ("60", "040", "PUERTO ARICA"),
+
+    # Putumayo (dept 64)
+    ("64", "001", "MOCOA"),
+    ("64", "002", "PUERTO ASIS"),
+    ("64", "004", "PUERTO LEGUIZAMO"),
+    ("64", "007", "COLON"),
+    ("64", "013", "SAN FRANCISCO"),
+    ("64", "016", "SANTIAGO"),
+    ("64", "018", "SAN MIGUEL (LA DORADA)"),
+    ("64", "019", "SIBUNDOY"),
+    ("64", "023", "ORITO"),
+    ("64", "025", "PUERTO GUZMAN"),
+    ("64", "026", "PUERTO CAICEDO"),
+    ("64", "028", "VALLE DEL GUAMUEZ (LA HORMIGA)"),
+    ("64", "030", "VILLAGARZON"),
 ]
 
 # ============================================================================
