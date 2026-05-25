@@ -824,6 +824,22 @@ MUNICIPIOS_OBJETIVO = [
     ("23", "139", "TUMACO"),
     ("23", "142", "TUQUERRES"),
     ("23", "145", "YACUANQUER"),
+
+    # Risaralda (dept 66)
+    ("66", "001", "PEREIRA"),
+    ("66", "008", "APIA"),
+    ("66", "013", "BALBOA"),
+    ("66", "021", "BELEN DE UMBRIA"),
+    ("66", "025", "DOSQUEBRADAS"),
+    ("66", "029", "GUATICA"),
+    ("66", "038", "LA CELIA"),
+    ("66", "046", "LA VIRGINIA"),
+    ("66", "054", "MARSELLA"),
+    ("66", "062", "MISTRATO"),
+    ("66", "070", "PUEBLO RICO"),
+    ("66", "078", "QUINCHIA"),
+    ("66", "086", "SANTA ROSA DE CABAL"),
+    ("66", "094", "SANTUARIO"),
 ]
 
 # ============================================================================
