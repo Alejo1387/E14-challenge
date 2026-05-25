@@ -1115,6 +1115,24 @@ MUNICIPIOS_OBJETIVO = [
     ("40", "017", "FORTUL"),
     ("40", "020", "PUERTO RONDON"),
     ("40", "025", "SARAVENA"),
+
+    # Caquetá (dept 44)
+    ("44", "001", "FLORENCIA"),
+    ("44", "002", "ALBANIA"),
+    ("44", "003", "CARTAGENA DEL CHAIRA"),
+    ("44", "004", "BELEN DE LOS ANDAQUIES"),
+    ("44", "005", "EL DONCELLO"),
+    ("44", "006", "EL PAUJIL"),
+    ("44", "007", "LA MONTAÑITA"),
+    ("44", "009", "PUERTO RICO"),
+    ("44", "010", "SAN VICENTE DEL CAGUAN"),
+    ("44", "012", "CURILLO"),
+    ("44", "016", "MILAN"),
+    ("44", "017", "MORELIA"),
+    ("44", "020", "SAN JOSE DEL FRAGUA"),
+    ("44", "022", "SOLANO"),
+    ("44", "024", "SOLITA"),
+    ("44", "040", "VALPARAISO"),
 ]
 
 # ============================================================================
