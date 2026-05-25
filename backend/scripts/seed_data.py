@@ -1250,6 +1250,14 @@ MUNICIPIOS_OBJETIVO = [
     ("64", "026", "PUERTO CAICEDO"),
     ("64", "028", "VALLE DEL GUAMUEZ (LA HORMIGA)"),
     ("64", "030", "VILLAGARZON"),
+
+    # Vaupés (dept 68)
+    ("68", "001", "MITU"),
+    ("68", "004", "CARURU"),
+    ("68", "010", "MORICHAL (PAPUNAGUA)"),
+    ("68", "013", "BUENOS AIRES (PACOA)"),
+    ("68", "017", "TARAIRA"),
+    ("68", "022", "YAVARATE"),
 ]
 
 # ============================================================================
