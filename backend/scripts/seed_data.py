@@ -1171,6 +1171,16 @@ MUNICIPIOS_OBJETIVO = [
     ("48", "016", "URIBIA"),
     ("48", "018", "URUMITA"),
     ("48", "020", "VILLANUEVA"),
+
+    # Guainía (dept 50)
+    ("50", "001", "INIRIDA"),
+    ("50", "070", "BARRANCOMINAS"),
+    ("50", "073", "CACAHUAL"),
+    ("50", "078", "LA GUADALUPE"),
+    ("50", "083", "MORICHAL (MORICHAL NUEVO)"),
+    ("50", "087", "PANA PANA (CAMPO ALEGRE)"),
+    ("50", "090", "PUERTO COLOMBIA"),
+    ("50", "092", "SAN FELIPE"),
 ]
 
 # ============================================================================
