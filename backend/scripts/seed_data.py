@@ -655,6 +655,38 @@ MUNICIPIOS_OBJETIVO = [
 
     # Bogotá D.C. (dept 16)
     ("16", "001", "BOGOTA. D.C."),
+
+    # Chocó (dept 17)
+    ("17", "001", "QUIBDO"),
+    ("17", "002", "ATRATO (YUTO)"),
+    ("17", "004", "ACANDI"),
+    ("17", "006", "ALTO BAUDO (PIE DE PATO)"),
+    ("17", "007", "BAGADO"),
+    ("17", "008", "BAHIA SOLANO (MUTIS)"),
+    ("17", "010", "BAJO BAUDO (PIZARRO)"),
+    ("17", "011", "BOJAYA (BELLAVISTA)"),
+    ("17", "012", "MEDIO ATRATO (BETE)"),
+    ("17", "013", "CONDOTO"),
+    ("17", "014", "CERTEGUI"),
+    ("17", "015", "CARMEN DEL DARIEN"),
+    ("17", "016", "EL CARMEN"),
+    ("17", "017", "EL CANTON DEL SAN PABLO (MAN."),
+    ("17", "019", "ISTMINA"),
+    ("17", "022", "JURADO"),
+    ("17", "025", "LLORO"),
+    ("17", "026", "MEDIO BAUDO (PUERTO MELUK)"),
+    ("17", "027", "MEDIO SAN JUAN"),
+    ("17", "028", "NOVITA"),
+    ("17", "031", "NUQUI"),
+    ("17", "032", "RIO IRO"),
+    ("17", "034", "RIOSUCIO"),
+    ("17", "035", "RIO QUITO (PAIMADO)"),
+    ("17", "037", "SAN JOSE DEL PALMAR"),
+    ("17", "038", "EL LITORAL DEL SAN JUAN"),
+    ("17", "040", "SIPI"),
+    ("17", "043", "TADO"),
+    ("17", "048", "UNGUIA"),
+    ("17", "060", "UNION PANAMERICANA (LAS ANIMAS"),
 ]
 
 # ============================================================================
