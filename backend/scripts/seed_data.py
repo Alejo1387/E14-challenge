@@ -1154,6 +1154,23 @@ MUNICIPIOS_OBJETIVO = [
     ("46", "850", "TAURAMENA"),
     ("46", "865", "TRINIDAD"),
     ("46", "880", "VILLANUEVA"),
+
+    # La Guajira (dept 48)
+    ("48", "001", "RIOHACHA"),
+    ("48", "002", "ALBANIA"),
+    ("48", "004", "BARRANCAS"),
+    ("48", "005", "DIBULLA"),
+    ("48", "006", "EL MOLINO"),
+    ("48", "007", "FONSECA"),
+    ("48", "008", "DISTRACCION"),
+    ("48", "009", "HATONUEVO"),
+    ("48", "010", "MAICAO"),
+    ("48", "011", "MANAURE"),
+    ("48", "012", "LA JAGUA DEL PILAR"),
+    ("48", "013", "SAN JUAN DEL CESAR"),
+    ("48", "016", "URIBIA"),
+    ("48", "018", "URUMITA"),
+    ("48", "020", "VILLANUEVA"),
 ]
 
 # ============================================================================
