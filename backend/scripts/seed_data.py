@@ -1213,11 +1213,15 @@ MUNICIPIOS_OBJETIVO = [
     ("52", "074", "URIBE"),
     ("52", "080", "VISTA HERMOSA"),
 
-    # Guaviare
+    # Guaviare (dept 54)
     ("54", "001", "SAN JOSE DEL GUAVIARE"),
     ("54", "003", "CALAMAR"),
     ("54", "007", "EL RETORNO"),
     ("54", "012", "MIRAFLORES"),
+
+    # San Andrés (dept 56)
+    ("56", "001", "SAN ANDRES"),
+    ("56", "004", "PROVIDENCIA"),
 ]
 
 # ============================================================================
