@@ -1336,6 +1336,43 @@ MUNICIPIOS_OBJETIVO = [
 ]
 
 # ============================================================================
+# EJEMPLOS (solo 3) — ZONAS, PUESTOS Y MESAS
+# ============================================================================
+#
+# Estos arrays son SOLO de ejemplo para que luego los reemplaces por datos reales.
+# La jerarquía es:
+#   departamento → municipio → zona → puesto → mesa → pdf
+#
+# Importante:
+# - Los códigos en el scraper/playwright suelen venir como strings con ceros: "001", "01", etc.
+# - En BD, `zone_number` y `station_number` se guardan como strings.
+#
+
+# Zonas por municipio
+# Estructura: (dept_code, muni_code, zone_code, zone_label)
+ZONAS_MUNICIPIO_EJEMPLO = [
+    ("01", "001", "001", "ZONA 001"),
+    ("01", "001", "002", "ZONA 002"),
+    ("05", "001", "001", "ZONA 001"),
+]
+
+# Puestos por zona
+# Estructura: (dept_code, muni_code, zone_code, station_code, station_name)
+PUESTOS_ZONA_EJEMPLO = [
+    ("01", "001", "001", "01", "IE Antonio Derka"),
+    ("01", "001", "001", "02", "IE San José"),
+    ("05", "001", "001", "01", "IE República de Cartagena"),
+]
+
+# Mesas por puesto
+# Estructura: (dept_code, muni_code, zone_code, station_code, table_number)
+MESAS_PUESTO_EJEMPLO = [
+    ("01", "001", "001", "01", "001"),
+    ("01", "001", "001", "01", "002"),
+    ("05", "001", "001", "01", "001"),
+]
+
+# ============================================================================
 # FUNCIÓN PARA INSERTAR DEPARTAMENTOS
 # ============================================================================
 
@@ -1422,12 +1459,15 @@ def insertar_municipios(session: Session) -> int:
 
 def insertar_geografia_votacion(session: Session) -> dict:
     """
-    Inserta zonas, estaciones y mesas ficticias pero realistas.
+    Inserta zonas, puestos (stations) y mesas (voting_tables).
+
+    Esta función usa los arrays de ejemplo:
+    - ZONAS_MUNICIPIO_EJEMPLO
+    - PUESTOS_ZONA_EJEMPLO
+    - MESAS_PUESTO_EJEMPLO
     
-    Para cada municipio, crea:
-    - 3 zonas
-    - 5 estaciones por zona
-    - 3-4 mesas por estación
+    Si en el futuro quieres volver a un generador ficticio, puedes cambiar
+    estos arrays por datos reales o reintroducir un modo "random".
     
     Args:
         session: Sesión de BD
@@ -1436,65 +1476,132 @@ def insertar_geografia_votacion(session: Session) -> dict:
         dict con cantidades insertadas
     """
     
-    print("🗳️  Insertando zonas, estaciones y mesas...")
+    print("🗳️  Insertando zonas, puestos y mesas (desde arrays)...")
     
     stats = {
         "zonas": 0,
         "estaciones": 0,
         "mesas": 0,
     }
-    
-    # Para cada municipio objetivo
-    municipios = session.query(Municipality).filter(
-        Municipality.department_code.in_([dept for dept, _, _ in MUNICIPIOS_OBJETIVO])
-    ).all()
-    
-    for muni in municipios:
-        # Crear 3 zonas por municipio
-        for zona_num in range(1, 4):
-            zona = Zone(
-                municipality_code=muni.code,
-                municipality_department=muni.department_code,
-                zone_number=f"{zona_num:02d}"
-            )
-            session.add(zona)
-            stats["zonas"] += 1
-        
-        session.flush()  # Guardar las zonas para obtener sus IDs
-        
-        # Para cada zona, crear estaciones
-        zonas = session.query(Zone).filter_by(municipality_code=muni.code).all()
-        
-        for zona in zonas:
-            # 5 estaciones por zona
-            for estacion_num in range(1, 6):
-                estacion = Station(
-                    zone_id=zona.id,
-                    station_number=f"{estacion_num:03d}",
-                    name=f"Escuela #{estacion_num * 100 + zona.id}",
-                    address=f"Dirección ficticia {zona.zone_number}-{estacion_num}"
-                )
-                session.add(estacion)
-                stats["estaciones"] += 1
-            
-            session.flush()
-            
-            # Para cada estación, crear mesas
-            estaciones = session.query(Station).filter_by(zone_id=zona.id).all()
-            
-            for estacion in estaciones:
-                # 3-4 mesas por estación
-                mesas_count = 3 if estacion.id % 2 == 0 else 4
-                
-                for mesa_num in range(1, mesas_count + 1):
-                    mesa = VotingTable(
-                        station_id=estacion.id,
-                        table_number=f"{(mesa_num + estacion.id) % 100:03d}",
-                        registered_voters=300 + (estacion.id * mesa_num) % 200
-                    )
-                    session.add(mesa)
-                    stats["mesas"] += 1
-    
+
+    def _norm(v: str, width: int) -> str:
+        s = str(v).strip()
+        return s.zfill(width) if s.isdigit() else s
+
+    # ------------------------------------------------------------------------
+    # 1) Insertar zonas
+    # ------------------------------------------------------------------------
+    zonas_por_key: dict[tuple[str, str, str], Zone] = {}
+
+    for dept_code, muni_code, zone_code, _zone_label in ZONAS_MUNICIPIO_EJEMPLO:
+        dept = _norm(dept_code, 2)
+        muni = _norm(muni_code, 3)
+        zona_num = _norm(zone_code, 3)
+
+        muni_obj = session.query(Municipality).filter_by(
+            code=muni,
+            department_code=dept,
+        ).first()
+        if not muni_obj:
+            print(f"   ⚠️  Municipio {muni} (depto {dept}) no existe; se omite zona {zona_num}")
+            continue
+
+        existente = session.query(Zone).filter_by(
+            municipality_code=muni,
+            municipality_department=dept,
+            zone_number=zona_num,
+        ).first()
+
+        if existente:
+            zonas_por_key[(dept, muni, zona_num)] = existente
+            continue
+
+        zona = Zone(
+            municipality_code=muni,
+            municipality_department=dept,
+            zone_number=zona_num,
+        )
+        session.add(zona)
+        session.flush()
+        zonas_por_key[(dept, muni, zona_num)] = zona
+        stats["zonas"] += 1
+
+    # ------------------------------------------------------------------------
+    # 2) Insertar puestos (stations)
+    # ------------------------------------------------------------------------
+    estaciones_por_key: dict[tuple[str, str, str, str], Station] = {}
+
+    for dept_code, muni_code, zone_code, station_code, station_name in PUESTOS_ZONA_EJEMPLO:
+        dept = _norm(dept_code, 2)
+        muni = _norm(muni_code, 3)
+        zona_num = _norm(zone_code, 3)
+        puesto = _norm(station_code, 2)
+
+        zona = zonas_por_key.get((dept, muni, zona_num))
+        if not zona:
+            # Intentar leer de BD si la zona ya existía
+            zona = session.query(Zone).filter_by(
+                municipality_code=muni,
+                municipality_department=dept,
+                zone_number=zona_num,
+            ).first()
+            if zona:
+                zonas_por_key[(dept, muni, zona_num)] = zona
+            else:
+                print(f"   ⚠️  Zona {zona_num} no existe para {dept}-{muni}; se omite puesto {puesto}")
+                continue
+
+        existente = session.query(Station).filter_by(
+            zone_id=zona.id,
+            station_number=puesto,
+        ).first()
+        if existente:
+            estaciones_por_key[(dept, muni, zona_num, puesto)] = existente
+            continue
+
+        estacion = Station(
+            zone_id=zona.id,
+            station_number=puesto,
+            name=station_name,
+            address=None,
+            latitude=None,
+            longitude=None,
+        )
+        session.add(estacion)
+        session.flush()
+        estaciones_por_key[(dept, muni, zona_num, puesto)] = estacion
+        stats["estaciones"] += 1
+
+    # ------------------------------------------------------------------------
+    # 3) Insertar mesas (voting_tables)
+    # ------------------------------------------------------------------------
+    for dept_code, muni_code, zone_code, station_code, table_number in MESAS_PUESTO_EJEMPLO:
+        dept = _norm(dept_code, 2)
+        muni = _norm(muni_code, 3)
+        zona_num = _norm(zone_code, 3)
+        puesto = _norm(station_code, 2)
+        mesa_num = _norm(table_number, 3)
+
+        estacion = estaciones_por_key.get((dept, muni, zona_num, puesto))
+        if not estacion:
+            print(f"   ⚠️  Puesto {puesto} no existe para {dept}-{muni}-zona{zona_num}; se omite mesa {mesa_num}")
+            continue
+
+        existente = session.query(VotingTable).filter_by(
+            station_id=estacion.id,
+            table_number=mesa_num,
+        ).first()
+        if existente:
+            continue
+
+        mesa = VotingTable(
+            station_id=estacion.id,
+            table_number=mesa_num,
+            registered_voters=None,
+        )
+        session.add(mesa)
+        stats["mesas"] += 1
+
     session.commit()
     print(f"   ✅ {stats['zonas']} zonas insertadas")
     print(f"   ✅ {stats['estaciones']} estaciones insertadas")
