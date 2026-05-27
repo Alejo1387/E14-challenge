@@ -1396,6 +1396,15 @@ ZONAS_MUNICIPIO_EJEMPLO = [
     # Antioquia (dept 01), Abriaqui (muni 007)
     ("01", "007", "0", "ZONA 00"),
     ("01", "007", "99", "ZONA 99"),
+
+    # Antioquia (dept 01), Alejandria (muni 010)
+    ("01", "010", "0", "ZONA 00"),
+
+    # Antioquia (dept 01), Amaga (muni 013)
+    ("01", "013", "1", "ZONA 01"),
+    ("01", "013", "2", "ZONA 02"),
+    ("01", "004", "98", "ZONA 98"),
+    ("01", "004", "99", "ZONA 99"),
 ]
 
 # Puestos por zona
@@ -1407,11 +1416,11 @@ PUESTOS_ZONA_EJEMPLO = [
 ]
 
 # Mesas por puesto
-# Estructura: (dept_code, muni_code, zone_code, station_code, table_number)
+# Estructura: (dept_code, muni_code, zone_code, station_code, table_number, table_name)
 MESAS_PUESTO_EJEMPLO = [
-    ("01", "001", "001", "01", "001"),
-    ("01", "001", "001", "01", "002"),
-    ("05", "001", "001", "01", "001"),
+    ("01", "001", "001", "01", "001", "MESA 001"),
+    ("01", "001", "001", "01", "002", "MESA 002"),
+    ("05", "001", "001", "01", "001", "MESA 001"),
 ]
 
 # ============================================================================
