@@ -1410,17 +1410,36 @@ ZONAS_MUNICIPIO_EJEMPLO = [
 # Puestos por zona
 # Estructura: (dept_code, muni_code, zone_code, station_code, station_name)
 PUESTOS_ZONA_EJEMPLO = [
-    ("01", "001", "001", "01", "IE Antonio Derka"),
-    ("01", "001", "001", "02", "IE San José"),
-    ("05", "001", "001", "01", "IE República de Cartagena"),
+    # Antioquia (dept 01), Medellín (muni 001), Zona 01
+    ("01", "001", "1", "01", "SEC. ESC. LA ESPERANZA NO 2"),
+    ("01", "001", "1", "02", "INST.EDUC. LA CANDELARIA"),
+    ("01", "001", "1", "03", "IE.MARIA DE LOS ANGELES CANO MARQUEZ"),
+    ("01", "001", "1", "04", "SEC. ESC. MEDELLIN"),
+    ("01", "001", "1", "05", "I.E.FE Y ALEGRIA GRANIZAL"),
+    ("01", "001", "1", "06", "IE LA AVANZADA"),
+    ("01", "001", "1", "07", "SEC. ESC. CARPINELO AMAPOLITA"),
+    ("01", "001", "1", "08", "IE ANTONIO DERKA"),
+
+    # Antioquia (dept 01), Medellín (muni 001), Zona 02
+    ("01", "001", "2", "01", "SEC.ESC. PABLO VI"),
+    ("01", "001", "2", "02", "SEC. ESC. DIVINA PROVIDENCIA"),
+    ("01", "001", "2", "03", "SEC.ESC.AGRIPINA MONTES DEL VALLE"),
+    ("01", "001", "2", "04", "I.E.FEDERICO CARRASQUILLA"),
+    ("01", "001", "2", "05", "I.E.GUADALUPE"),
+
+    # Antioquia (dept 01), Medellin (muni 001), Zona 03
+    ("01", "001", "3", "01", "I.E. ASIA IGNACIANA"),
+    ("01", "001", "3", "02", "SEC.ESC. MANUEL URIBE ANGEL"),
+    ("01", "001", "3", "03", "SEC.ESC. REPUB. DE NICARAGUA"),
+    ("01", "001", "3", "04", "I.E.FE Y ALEGRIA J.MARIA VELAZ"),
 ]
 
 # Mesas por puesto
 # Estructura: (dept_code, muni_code, zone_code, station_code, table_number, table_name)
 MESAS_PUESTO_EJEMPLO = [
-    ("01", "001", "001", "01", "001", "MESA 001"),
-    ("01", "001", "001", "01", "002", "MESA 002"),
-    ("05", "001", "001", "01", "001", "MESA 001"),
+    ("01", "001", "1", "01", "001", "MESA 001"),
+    ("01", "001", "1", "01", "002", "MESA 002"),
+    ("05", "001", "1", "01", "001", "MESA 001"),
 ]
 
 # ============================================================================
@@ -1626,7 +1645,15 @@ def insertar_geografia_votacion(session: Session) -> dict:
     # ------------------------------------------------------------------------
     # 3) Insertar mesas (voting_tables)
     # ------------------------------------------------------------------------
-    for dept_code, muni_code, zone_code, station_code, table_number in MESAS_PUESTO_EJEMPLO:
+    for mesa_row in MESAS_PUESTO_EJEMPLO:
+        # Soporta dos formatos:
+        # - (dept, muni, zona, puesto, mesa)
+        # - (dept, muni, zona, puesto, mesa, etiqueta)
+        if len(mesa_row) < 5:
+            print(f"   ⚠️  Fila MESAS_PUESTO_EJEMPLO inválida: {mesa_row}")
+            continue
+
+        dept_code, muni_code, zone_code, station_code, table_number = mesa_row[:5]
         dept = _norm(dept_code, 2)
         muni = _norm(muni_code, 3)
         zona_num = _norm(zone_code, 3)
