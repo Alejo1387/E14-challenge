@@ -1,129 +1,160 @@
 """
 setup_db.py - Inicializar la Base de Datos E14 Challenge
 
-Este script CREA la base de datos la PRIMERA VEZ.
+Crea el archivo SQLite y todas las tablas definidas en src/database/schema.py.
 
-IMPORTANTE: Ejecutar SOLO UNA VEZ al principio del proyecto.
-Si lo ejecutas de nuevo, sobrescribe las tablas (¡cuidado!).
-
-¿Cómo ejecutar?
+Uso:
     cd backend
-    python scripts/setup_db.py
+    python scripts/setup_db.py           # crea tablas que falten
+    python scripts/setup_db.py --reset   # borra TODO y recrea (solo desarrollo)
 
-¿Qué hace?
-    1. Lee el schema (estructura de tablas) de src/database/schema.py
-    2. Conecta a la BD (SQLite)
-    3. Crea todas las tablas
-    4. Verifica que todo está bien
+Orden de tablas (dependencias):
+    elections → election_candidates
+    departments → municipalities → zones → stations → voting_tables
+    forms → extraction_results → candidate_votes, field_tags, anomalies
 """
 
+import argparse
 import sys
 from pathlib import Path
 
-# Agregar backend/ al path para importar nuestros módulos
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Importar lo que necesitamos
 from config import DATABASE_URL, DATABASE_PATH, BACKEND_DATA_DIR
-from src.database.schema import create_all_tables, Base
+from src.database.schema import Base, create_all_tables, drop_all_tables
+from src.database.connection import verificar_conexion
 
-# ============================================================================
-# FUNCIÓN PRINCIPAL
-# ============================================================================
+# Resumen del esquema actual (alineado con schema.py)
+TABLAS_POR_GRUPO = {
+    "Elección": [
+        ("elections", "Configuración de cada elección (PRES_1V_2022, etc.)"),
+        ("election_candidates", "Candidatos por elección"),
+    ],
+    "Geografía electoral": [
+        ("departments", "Departamentos"),
+        ("municipalities", "Municipios"),
+        ("zones", "Zonas"),
+        ("stations", "Puestos de votación"),
+        ("voting_tables", "Mesas"),
+    ],
+    "Formularios E-14": [
+        ("forms", "PDFs descargados y metadatos"),
+    ],
+    "OCR y análisis": [
+        ("extraction_results", "Resultados de Gemini"),
+        ("candidate_votes", "Votos por candidato"),
+        ("field_tags", "Problemas en campos del formulario"),
+        ("anomalies", "Anomalías detectadas"),
+    ],
+}
 
-def main():
-    """
-    Ejecuta la inicialización de la BD.
-    """
-    
-    print("\n" + "="*70)
-    print("🔧 INICIALIZANDO BASE DE DATOS E14 CHALLENGE")
-    print("="*70 + "\n")
-    
-    # PASO 1: Verificar que existen las carpetas de datos
+
+def _crear_carpetas() -> bool:
     print("📁 Verificando carpetas de datos...")
     try:
         BACKEND_DATA_DIR.mkdir(parents=True, exist_ok=True)
-        print(f"   ✅ Carpeta de datos lista: {BACKEND_DATA_DIR}\n")
-    except Exception as e:
-        print(f"   ❌ Error creando carpeta: {e}\n")
+        print(f"   ✅ {BACKEND_DATA_DIR}\n")
+        return True
+    except OSError as e:
+        print(f"   ❌ Error: {e}\n")
         return False
-    
-    # PASO 2: Crear la BD y todas las tablas
-    print("🗄️  Creando base de datos...")
-    print(f"   Ubicación: {DATABASE_PATH}")
-    print(f"   URL: {DATABASE_URL}\n")
-    
-    try:
-        # Esto llama a create_all_tables() de schema.py
-        engine = create_all_tables(DATABASE_URL)
-        print(f"   ✅ Base de datos creada exitosamente\n")
-    except Exception as e:
-        print(f"   ❌ Error creando BD: {e}\n")
-        return False
-    
-    # PASO 3: Mostrar las tablas que se crearon
-    print("📋 Tablas creadas:")
-    for tabla in Base.metadata.tables.keys():
-        # Obtener información sobre la tabla
-        tabla_obj = Base.metadata.tables[tabla]
-        columnas = len(tabla_obj.columns)
-        print(f"   ✅ {tabla:20} ({columnas} columnas)")
-    print()
-    
-    # PASO 4: Mostrar estructura de cada tabla
-    print("🔍 Estructura de tablas:\n")
-    for tabla_nombre, tabla_obj in Base.metadata.tables.items():
-        print(f"   📊 {tabla_nombre.upper()}")
-        for columna in tabla_obj.columns:
-            # Información de la columna
-            tipo = str(columna.type)
-            nullable = "nullable" if columna.nullable else "NOT NULL"
-            pk = "PRIMARY KEY" if columna.primary_key else ""
-            
-            # Combinar información
-            info_partes = [nullable]
-            if pk:
-                info_partes.append(pk)
-            info = " | ".join(info_partes)
-            
-            print(f"      • {columna.name:25} {tipo:15} {info}")
+
+
+def _mostrar_tablas_creadas() -> None:
+    print("📋 Tablas en el esquema:\n")
+    for grupo, tablas in TABLAS_POR_GRUPO.items():
+        print(f"   [{grupo}]")
+        for nombre, descripcion in tablas:
+            if nombre in Base.metadata.tables:
+                cols = len(Base.metadata.tables[nombre].columns)
+                print(f"      ✅ {nombre:22} ({cols} cols) — {descripcion}")
+            else:
+                print(f"      ❌ {nombre:22} — no definida en schema.py")
         print()
-    
-    # PASO 5: Resumen final
-    print("="*70)
+
+
+def _verificar_sqlite() -> bool:
+    """Comprueba que el archivo .db existe y responde."""
+    if not DATABASE_PATH.exists():
+        print(f"   ❌ No se creó el archivo: {DATABASE_PATH}\n")
+        return False
+
+    if verificar_conexion():
+        print(f"   ✅ Archivo: {DATABASE_PATH}")
+        print("   ✅ Conexión OK\n")
+        return True
+
+    print("   ❌ No se pudo verificar la conexión\n")
+    return False
+
+
+def main(reset: bool = False) -> bool:
+    print("\n" + "=" * 70)
+    print("🔧 INICIALIZANDO BASE DE DATOS E14 CHALLENGE")
+    print("=" * 70 + "\n")
+
+    if not _crear_carpetas():
+        return False
+
+    print("🗄️  Base de datos:")
+    print(f"   Ruta: {DATABASE_PATH}")
+    print(f"   URL:  {DATABASE_URL}\n")
+
+    if reset:
+        print("⚠️  Modo --reset: eliminando todas las tablas existentes...")
+        try:
+            drop_all_tables(DATABASE_URL)
+        except Exception as e:
+            print(f"   ❌ Error al eliminar tablas: {e}\n")
+            return False
+
+    try:
+        create_all_tables(DATABASE_URL)
+    except Exception as e:
+        print(f"   ❌ Error creando tablas: {e}\n")
+        import traceback
+        traceback.print_exc()
+        return False
+
+    print("   ✅ Tablas creadas/actualizadas\n")
+
+    _mostrar_tablas_creadas()
+
+    if not _verificar_sqlite():
+        return False
+
+    print("=" * 70)
     print("✅ INICIALIZACIÓN COMPLETADA")
-    print("="*70)
+    print("=" * 70)
     print()
     print("📝 Próximos pasos:")
-    print("   1. Llenar la BD con datos de prueba:")
+    print("   1. Poblar datos base:")
     print("      python scripts/seed_data.py")
     print()
-    print("   2. Crear un script para procesar PDFs")
+    print("   2. Registrar PDFs descargados:")
+    print("      python scripts/register_downloaded_pdfs.py")
     print()
-    
+    if not reset:
+        print("   Si cambiaste columnas/tablas y hay conflictos, usa:")
+        print("      python scripts/setup_db.py --reset")
+        print()
     return True
 
 
-# ============================================================================
-# PUNTO DE ENTRADA
-# ============================================================================
-
 if __name__ == "__main__":
-    """
-    Se ejecuta cuando haces: python scripts/setup_db.py
-    """
-    
+    parser = argparse.ArgumentParser(description="Crear BD y tablas E14 Challenge")
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Borra todas las tablas y las vuelve a crear (pierde datos)",
+    )
+    args = parser.parse_args()
+
     try:
-        exito = main()
-        
-        # Salir con código de error si falla
-        sys.exit(0 if exito else 1)
-    
+        sys.exit(0 if main(reset=args.reset) else 1)
     except KeyboardInterrupt:
-        print("\n\n⚠️  Interrumpido por el usuario")
+        print("\n⚠️  Interrumpido")
         sys.exit(1)
-    
     except Exception as e:
         print(f"\n❌ Error inesperado: {e}")
         import traceback
