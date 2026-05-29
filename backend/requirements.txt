@@ -1,0 +1,18 @@
+# =============================================================================
+# E14 Challenge — dependencias del backend
+# =============================================================================
+#
+# Instalación (desde la carpeta backend/, con el entorno virtual activado):
+#   pip install -r requirements.txt
+#
+# =============================================================================
+
+# --- Necesarias para ejecutar el proyecto (base de datos, scripts) -----------
+
+# SQLAlchemy: conecta Python con SQLite y define las tablas en schema.py
+sqlalchemy==2.0.34
+
+# --- Solo para desarrollo (pruebas automáticas en tests/) --------------------
+
+# pytest: ejecuta los archivos test_*.py
+pytest==7.4.4
