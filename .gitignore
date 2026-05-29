@@ -1,8 +1,9 @@
 # Ignore all pycache directories
 __pycache__/
 
-
-requirements.txt
+# Entorno virtual de Python (cada desarrollador lo crea en su máquina)
+.venv/
+venv/
 
 informacion.md
 
@@ -14,8 +15,9 @@ debug_selectPuesto.html
 debug_selectMesa.html
 debug_selectMesa.html
 
-# Ignore DB
+# Base de datos SQLite (generada localmente)
 e14_challenge.db
+backend/data/e14_challenge.db
 
 # Ignore data files (raw and processed are generated/downloaded)
 data/raw/
