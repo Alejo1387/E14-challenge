@@ -30,7 +30,19 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Importar
 from config import DATABASE_URL, ELECTION_ID
-from src.database.schema import create_engine_connection, create_all_tables, Base, Department, Municipality, Zone, Station, VotingTable, Form, ProcessingStatus
+from src.database.schema import (
+    create_engine_connection,
+    create_all_tables,
+    Base,
+    Department,
+    Municipality,
+    Zone,
+    Station,
+    VotingTable,
+    Form,
+    ProcessingStatus,
+)
+from src.database.crud import asegurar_eleccion
 from sqlalchemy.orm import Session
 
 # ============================================================================
@@ -1784,6 +1796,13 @@ def main():
     try:
         # Crear todas las tablas si no existen
         Base.metadata.create_all(engine)
+
+        # PASO 0: Elección (FK de forms)
+        print("🗳️  Asegurando elección en BD...")
+        if not asegurar_eleccion(ELECTION_ID):
+            print("   ❌ No se pudo crear la elección\n")
+            return False
+        print()
         
         # PASO 1: Insertar departamentos
         dept_insertados = insertar_departamentos(session)
