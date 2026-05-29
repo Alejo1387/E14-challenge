@@ -36,6 +36,7 @@ from typing import Optional
 
 # Importar
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from config import ELECTION_ID, ELECTION_YEAR
 from src.database.schema import (
     Department,
     Municipality,
@@ -43,10 +44,12 @@ from src.database.schema import (
     Station,
     VotingTable,
     Form,
+    Election,
     ProcessingStatus,
     FormQuality,
 )
 from src.database.connection import session_scope
+from sqlalchemy.exc import IntegrityError
 
 # ============================================================================
 # JERARQUÍA ELECTORAL (zona → puesto → mesa)
@@ -78,18 +81,22 @@ def _buscar_zona(session, dept_code: str, muni_code: str, zone_number: str):
     return None
 
 
-def resolver_voting_table_id(
+def resolver_voting_table(
     department_code: str,
     municipality_code: str,
     zone_number: str,
     station_number: str,
     table_number: str,
-) -> Optional[int]:
+) -> Optional[dict]:
     """
-    Obtiene o crea zona, puesto y mesa; devuelve voting_tables.id.
+    Obtiene o crea zona, puesto y mesa a partir del nombre del PDF (sin .pdf).
 
     Usado al registrar PDFs con ruta:
         data/raw/{depto}/{muni}/{zona}/{puesto}/{mesa}.pdf
+
+    Returns:
+        dict con id (PK en voting_tables), table_number (mesa del archivo),
+        y códigos de zona/puesto normalizados.
     """
     from src.storage.pdf_paths import normalizar_ubicacion
 
@@ -152,11 +159,36 @@ def resolver_voting_table_id(
                 session.flush()
 
             session.commit()
-            return mesa.id
+            return {
+                "id": mesa.id,
+                "table_number": mesa.table_number,
+                "station_number": estacion.station_number,
+                "zone_number": zona.zone_number,
+                "department_code": u["dept_code"],
+                "municipality_code": u["muni_code"],
+            }
 
     except Exception as e:
         print(f"❌ Error resolviendo mesa de votación: {e}")
         return None
+
+
+def resolver_voting_table_id(
+    department_code: str,
+    municipality_code: str,
+    zone_number: str,
+    station_number: str,
+    table_number: str,
+) -> Optional[int]:
+    """Atajo: devuelve solo voting_tables.id (FK que va en forms.voting_table_id)."""
+    mesa = resolver_voting_table(
+        department_code,
+        municipality_code,
+        zone_number,
+        station_number,
+        table_number,
+    )
+    return mesa["id"] if mesa else None
 
 
 # ============================================================================
@@ -205,6 +237,81 @@ def crear_departamento(dept_code: str, dept_name: str) -> Optional[dict]:
 
 
 # ============================================================================
+# ELECCIÓN (requerida antes de insertar forms)
+# ============================================================================
+
+def asegurar_eleccion(
+    election_id: Optional[str] = None,
+    name: Optional[str] = None,
+) -> bool:
+    """
+    Crea el registro en elections si no existe (FK de forms.election_id).
+
+    Usa ELECTION_ID y ELECTION_YEAR de config.py por defecto.
+    """
+    eid = election_id or ELECTION_ID
+
+    try:
+        with session_scope() as session:
+            if session.query(Election).filter_by(id=eid).first():
+                return True
+
+            session.add(
+                Election(
+                    id=eid,
+                    name=name or f"Presidenciales 1ª Vuelta {ELECTION_YEAR}",
+                    election_date=datetime(ELECTION_YEAR, 5, 29),
+                    form_layout_version=str(ELECTION_YEAR),
+                    candidate_count=8,
+                    status="ACTIVE",
+                )
+            )
+            session.commit()
+            print(f"✅ Elección {eid} registrada en BD")
+            return True
+
+    except Exception as e:
+        print(f"❌ Error asegurando elección: {e}")
+        return False
+
+
+def verificar_geografia_formulario(
+    department_code: str,
+    municipality_code: str,
+) -> Optional[str]:
+    """
+    Comprueba que departamento y municipio existan antes de insertar un form.
+
+    Returns:
+        Mensaje de error si falta algo; None si la geografía es válida.
+    """
+    try:
+        with session_scope() as session:
+            dept = session.query(Department).filter_by(
+                code=department_code
+            ).first()
+            if not dept:
+                return (
+                    f"Departamento {department_code} no está en BD. "
+                    "Ejecuta: python scripts/seed_data.py"
+                )
+
+            muni = session.query(Municipality).filter_by(
+                code=municipality_code,
+                department_code=department_code,
+            ).first()
+            if not muni:
+                return (
+                    f"Municipio {municipality_code} (depto {department_code}) "
+                    "no está en BD. Ejecuta: python scripts/seed_data.py"
+                )
+            return None
+
+    except Exception as e:
+        return f"Error verificando geografía: {e}"
+
+
+# ============================================================================
 # FUNCIONES PARA FORMULARIOS (LA MÁS IMPORTANTE)
 # ============================================================================
 
@@ -247,6 +354,14 @@ def crear_formulario(
         >>> print(f"Formulario creado con ID: {form_id}")
     """
     
+    if not asegurar_eleccion(election_id):
+        return None
+
+    error_geo = verificar_geografia_formulario(department_code, municipality_code)
+    if error_geo:
+        print(f"❌ {error_geo}")
+        return None
+
     try:
         with session_scope() as session:
             # Verificar que no existe
@@ -274,6 +389,27 @@ def crear_formulario(
             print(f"✅ Formulario {form_serial} creado con ID: {form.id}")
             return form.id
     
+    except IntegrityError as e:
+        orig = str(getattr(e, "orig", e))
+        if "elections" in orig or "election_id" in orig.lower():
+            hint = (
+                "Falta la elección en tabla elections. "
+                "Ejecuta seed_data o vuelve a registrar (asegurar_eleccion)."
+            )
+        elif "departments" in orig:
+            hint = f"Departamento {department_code} no existe en BD (seed_data.py)."
+        elif "municipalities" in orig:
+            hint = (
+                f"Municipio {municipality_code}/{department_code} "
+                "no existe en BD (seed_data.py)."
+            )
+        elif "voting_tables" in orig:
+            hint = f"Mesa voting_table_id={voting_table_id} no existe en BD."
+        else:
+            hint = "Revisa que existan elections, departments, municipalities y voting_tables."
+        print(f"❌ Error creando formulario (FK): {orig}\n   💡 {hint}")
+        return None
+
     except Exception as e:
         print(f"❌ Error creando formulario: {e}")
         return None
