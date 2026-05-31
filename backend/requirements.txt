@@ -2,8 +2,9 @@
 # E14 Challenge — dependencias del backend
 # =============================================================================
 #
-# Instalación (desde la carpeta backend/, con el entorno virtual activado):
-#   pip install -r requirements.txt
+# Instalación con UV (desde la carpeta backend/):
+#   uv venv
+#   uv pip install -r requirements.txt
 #
 # =============================================================================
 
