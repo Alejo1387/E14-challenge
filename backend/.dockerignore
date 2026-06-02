@@ -1,0 +1,23 @@
+# Entornos locales (no copiar a la imagen)
+.venv/
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Datos y BD (se montan con volúmenes en docker-compose)
+data/
+logs/
+
+# Git y documentación de desarrollo
+.git/
+.gitignore
+*.md
+!README.md
+
+# IDE
+.idea/
+.vscode/
+.cursor/
