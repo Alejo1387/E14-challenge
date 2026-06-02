@@ -1,0 +1,50 @@
+# E14 Challenge — entorno de desarrollo con Docker
+#
+# Uso rápido (desde la raíz del repo):
+#   docker compose build
+#   docker compose up -d
+#   docker compose exec backend python scripts/setup_db.py
+#   docker compose exec backend python scripts/seed_data.py
+#
+# Ver guía: backend/DOCKER.md
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: e14-challenge-backend:latest
+    container_name: e14-backend
+    working_dir: /app
+    volumes:
+      # Persisten PDFs, SQLite y archivos procesados en tu disco
+      - ./backend/data:/app/data
+      - ./backend/logs:/app/logs
+    environment:
+      PYTHONUNBUFFERED: "1"
+    # Contenedor activo para ejecutar scripts con docker compose exec
+    command: ["sleep", "infinity"]
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL (Fase futura — descomenta cuando migres desde SQLite)
+  # ---------------------------------------------------------------------------
+  # postgres:
+  #   image: postgis/postgis:16-3.4
+  #   container_name: e14-postgres
+  #   environment:
+  #     POSTGRES_USER: e14
+  #     POSTGRES_PASSWORD: e14_dev
+  #     POSTGRES_DB: e14_challenge
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - e14_pg_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U e14 -d e14_challenge"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 5
+
+# volumes:
+#   e14_pg_data:
