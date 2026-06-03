@@ -2,6 +2,7 @@
 seed_data.py - Llenar la Base de Datos con Datos de Prueba
 
 Este script inserta datos REALES de Colombia:
+- Elección PRES_1V_2022 y 8 candidatos presidenciales (orden del tarjetón)
 - 33 Departamentos + Bogotá D.C.
 - Municipios principales de las 6 ciudades (Bogotá, Medellín, etc.)
 - Zonas, estaciones y mesas (ficticias pero realistas)
@@ -40,6 +41,8 @@ from src.database.schema import (
     Station,
     VotingTable,
     Form,
+    Election,
+    ElectionCandidate,
     ProcessingStatus,
 )
 from src.database.crud import asegurar_eleccion
@@ -1455,6 +1458,119 @@ MESAS_PUESTO_EJEMPLO = [
 ]
 
 # ============================================================================
+# CANDIDATOS PRESIDENCIALES 2022 — 1ª VUELTA (orden oficial del tarjetón)
+# Sorteo Registraduría, 29 de marzo de 2022. position = casilla en el E-14.
+# (candidate_name, party, coalition)
+# ============================================================================
+
+CANDIDATOS_PRES_1V_2022 = [
+    (
+        1,
+        "Rodolfo Hernández Suárez",
+        "Liga de Gobernantes Anticorrupción",
+        "Liga de Gobernantes Anticorrupción",
+    ),
+    (
+        2,
+        "John Milton Rodríguez González",
+        "Colombia Justa Libres",
+        "Colombia Justa Libres",
+    ),
+    (
+        3,
+        "Federico Andrés Gutiérrez Zuluaga",
+        "Coalición Equipo por Colombia",
+        "Equipo por Colombia",
+    ),
+    (
+        4,
+        "Sergio Fajardo Valderrama",
+        "Coalición Centro Esperanza",
+        "Centro Esperanza",
+    ),
+    (
+        5,
+        "Enrique Gómez Martínez",
+        "Movimiento de Salvación Nacional",
+        "Salvación Nacional",
+    ),
+    (
+        6,
+        "Gustavo Francisco Petro Urrego",
+        "Coalición Pacto Histórico",
+        "Pacto Histórico",
+    ),
+    (
+        7,
+        "Luis Emilio Pérez Gutiérrez",
+        "Colombia Piensa en Grande",
+        "Colombia Piensa en Grande",
+    ),
+    (
+        8,
+        "Ingrid Betancourt Pulido",
+        "Partido Verde Oxígeno",
+        "Partido Verde Oxígeno",
+    ),
+]
+
+PORTAL_E14_PRES_2022 = "https://e14_pres1v_2022.registraduria.gov.co"
+
+# ============================================================================
+# FUNCIÓN PARA INSERTAR CANDIDATOS DE LA ELECCIÓN
+# ============================================================================
+
+def insertar_candidatos_eleccion(session: Session, election_id: str = ELECTION_ID) -> int:
+    """
+    Inserta los 8 candidatos presidenciales de la 1ª vuelta 2022.
+
+    Usa el orden del tarjetón (campo position), necesario para OCR/Gemini.
+    """
+    print("👤 Insertando candidatos presidenciales 2022...")
+
+    eleccion = session.query(Election).filter_by(id=election_id).first()
+    if not eleccion:
+        print(f"   ❌ No existe la elección {election_id}. Ejecuta asegurar_eleccion primero.\n")
+        return 0
+
+    insertados = 0
+
+    for position, nombre, partido, coalicion in CANDIDATOS_PRES_1V_2022:
+        existe = (
+            session.query(ElectionCandidate)
+            .filter_by(election_id=election_id, position=position)
+            .first()
+        )
+        if existe:
+            print(f"   ⏭️  Casilla {position}: {existe.candidate_name} ya existe")
+            continue
+
+        session.add(
+            ElectionCandidate(
+                election_id=election_id,
+                position=position,
+                candidate_name=nombre,
+                party=partido,
+                coalition=coalicion,
+            )
+        )
+        insertados += 1
+
+    total = (
+        session.query(ElectionCandidate)
+        .filter_by(election_id=election_id)
+        .count()
+    )
+    eleccion.candidate_count = total
+    if not eleccion.portal_url:
+        eleccion.portal_url = PORTAL_E14_PRES_2022
+
+    session.commit()
+    print(f"   ✅ {insertados} candidatos insertados ({total} en total para {election_id})\n")
+    return insertados
+
+
+# ============================================================================
 # FUNCIÓN PARA INSERTAR DEPARTAMENTOS
 # ============================================================================
 
@@ -1803,6 +1919,9 @@ def main():
             print("   ❌ No se pudo crear la elección\n")
             return False
         print()
+
+        # PASO 0b: Candidatos presidenciales (orden tarjetón 2022)
+        candidatos_insertados = insertar_candidatos_eleccion(session)
         
         # PASO 1: Insertar departamentos
         dept_insertados = insertar_departamentos(session)
@@ -1821,6 +1940,7 @@ def main():
         print("✅ DATOS INSERTADOS EXITOSAMENTE")
         print("="*70)
         print(f"\n📊 Resumen:")
+        print(f"   • Candidatos ({ELECTION_ID}): {candidatos_insertados}")
         print(f"   • Departamentos: {dept_insertados}")
         print(f"   • Municipios: {muni_insertados}")
         print(f"   • Zonas: {stats_geografia['zonas']}")
@@ -1830,6 +1950,7 @@ def main():
         print()
         
         total = (
+            candidatos_insertados +
             dept_insertados + 
             muni_insertados + 
             stats_geografia['zonas'] + 
@@ -1841,7 +1962,7 @@ def main():
         
         print("📝 Próximos pasos:")
         print("   1. Verifica los datos en la BD:")
-        print("      python scripts/inspect_db.py  (lo crearemos después)")
+        print("      python scripts/inspect_db.py")
         print()
         print("   2. Cuando Persona A descargue PDFs reales, ejecuta:")
         print("      python scripts/register_downloaded_pdfs.py")
