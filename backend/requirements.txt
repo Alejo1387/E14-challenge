@@ -8,10 +8,19 @@
 #
 # =============================================================================
 
-# --- Necesarias para ejecutar el proyecto (base de datos, scripts) -----------
+# --- Necesarias para ejecutar el proyecto (base de datos, scripts, API) ----
 
 # SQLAlchemy: conecta Python con SQLite y define las tablas en schema.py
 sqlalchemy==2.0.34
+
+# FastAPI: framework API web asincrónico
+fastapi==0.104.1
+
+# uvicorn: servidor ASGI para FastAPI
+uvicorn==0.24.0
+
+# python-multipart: para file uploads en FastAPI
+python-multipart==0.0.6
 
 # --- Solo para desarrollo (pruebas automáticas en tests/) --------------------
 
