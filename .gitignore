@@ -3,6 +3,7 @@ __pycache__/
 
 # Entorno virtual de Python (cada desarrollador lo crea en su máquina)
 .venv/
+.venv*/
 venv/
 
 informacion.md
